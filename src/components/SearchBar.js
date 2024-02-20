@@ -1,27 +1,23 @@
 // Component for the Search Bar
-import React, { useState } from 'react';
+import React from 'react';
 
-const SearchBar = ({ onSearch }) => {
-  const [searchTerm, setSearchTerm] = useState('');
-
-  const handleInputChange = (event) => {
-    setSearchTerm(event.target.value);
+const SearchBar = (props) => {
+  const handleKeyDown = (event) => {
+    // Trigger onChange only when Enter key is pressed
+    if (event.key === 'Enter') {
+      props.setSearchValue(event.target.value);
+    }
   };
 
-  const handleSearch = () => {
-    onSearch(searchTerm); // Call the onSearch prop with the searchTerm value
-    console.log("Searching for ", searchTerm)
-  };
 
   return (
-    <div>
-      <input
-        type="text"
-        placeholder="Search..."
-        value={searchTerm}
-        onChange={handleInputChange}
-      />
-      <button onClick={handleSearch}>Search</button>
+    <div className='col col-sm-4'>
+      <input 
+        className='form-control' 
+        value={props.value} 
+        onChange={(event) => {}}
+        onKeyDown={handleKeyDown}
+        placeholder='Type to search...'></input>
     </div>
   );
 };
