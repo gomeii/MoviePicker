@@ -1,25 +1,28 @@
-// Component for the Search Bar
 import React from 'react';
 
-const SearchBar = (props) => {
-  const handleKeyDown = (event) => {
-    // Trigger onChange only when Enter key is pressed
-    if (event.key === 'Enter') {
-      props.setSearchValue(event.target.value);
-    }
+const SearchBar = ({ searchValue, setSearchValue }) => {
+  const handleInputChange = (event) => {
+    setSearchValue(event.target.value);
   };
 
-
   return (
-    <div className='col col-sm-4'>
+    <div className='fluid-container search-box'>
       <input 
         className='form-control' 
-        value={props.value} 
-        onChange={(event) => {}}
-        onKeyDown={handleKeyDown}
-        placeholder='Type to search...'></input>
+        value={searchValue} 
+        onChange={handleInputChange}
+        placeholder='Type to search...'
+      />
     </div>
   );
 };
 
 export default SearchBar;
+
+
+// const handleKeyDown = (event) => {
+//   // Trigger onChange only when Enter key is pressed
+//   if (event.key === 'Enter') {
+//     setSearchValue(event.target.value);
+//   }
+// };

@@ -1,4 +1,4 @@
-import logo from './logo.svg';
+// import logo from './logo.svg';
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import React, { useEffect, useState } from 'react';
@@ -29,7 +29,7 @@ const App = () => {
 
   return (
     <div className="App">
-      <header className="App-header">
+      {/* <header className="App-header">
         <img src={logo} className="App-logo" alt="logo" />
         <p>
           <code>src/App.js</code>
@@ -42,13 +42,11 @@ const App = () => {
         >
           Learn React
         </a>
-      </header>
+      </header> */}
       <div className='container-fluid movie-app'>
         <h1>Movie Search App</h1>
         <SearchBar searchValue={searchValue} setSearchValue={setSearchValue}/>
-        <div className='row d-flex align-items-center mt-4 mb-4'>
-          <MovieList movies={movies} setMovies={setMovies}/>
-        </div>
+        <MovieList movies={movies} setMovies={setMovies}/>
       </div>
     </div>
   );

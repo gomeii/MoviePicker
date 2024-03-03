@@ -47,3 +47,13 @@ body {
   overflow-x: auto;
   flex-wrap: nowrap;
 }
+
+.search-box{
+  padding-left:20%;
+  padding-right:20%;
+}
+
+.card-body {
+  height: 200px; /* Adjust the height as per your requirement */
+  overflow: hidden; /* Ensures that content beyond the fixed height is hidden */
+}
