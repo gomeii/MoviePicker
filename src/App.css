@@ -1,5 +1,6 @@
 .App {
-  text-align: center;
+  text-align: center; 
+  background-color: black;
 }
 
 .App-logo {
@@ -37,23 +38,109 @@
   }
 }
 
+.header-text{
+  color: white;
+}
 
 body {
   background: black;
   color: white;
 }
 
-.movie-app > .row{
-  overflow-x: auto;
-  flex-wrap: nowrap;
+.movie-app {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Center the content horizontally */
+  padding: 3rem;
 }
 
-.search-box{
-  padding-left:20%;
-  padding-right:20%;
+.search-container {
+  margin-bottom: 5rem; /* Add space between search box and movie list */
+}
+
+.movie-list-container {
+  height: 100%;
+  flex: 1; /* Grow to fill remaining vertical space */
+  overflow-y: auto; /* Enable vertical scrolling if needed */
+}
+
+.movie-list {
+  width: 100%;
+  height: auto;
+  padding-left: 2%;
+  padding-right: 2%;
+  display: flex;
+  overflow-x: auto;
+  justify-content:space-evenly;
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+
+.movie-card {
+  flex: 0 0 20%; /* Adjust the percentage as needed */
+  margin-right: 2rem; /* Space between cards */
+  box-sizing: border-box; /* Ensure padding and border are included in the width and height */
+  min-height: 60vh;
+  max-height: max-content;
+  min-width: 10vw;
+  width: auto;
+}
+
+
+.card {
+  display: flex;
+  flex-direction: column;
+  height: 100%; /* Ensure the card takes full height of the movie-card div */
+}
+
+.card-title {
+  margin-bottom: 0.5rem; /* Ensure the title sticks to the top */
+  overflow: hidden; /* Hide overflow content */
+  text-overflow: ellipsis; /* Add ellipsis (...) for overflowing text */
+  white-space: nowrap; /* Prevent text from wrapping */
+  font-size: 2vw; /* Ensure the title scales with the width of the viewport */
+}
+
+.card-img-top {
+  height: 30vh; /* Fixed height for the card image */
+  width: 100%; /* Ensures the image fills the container width */
+  object-fit: cover; /* Maintain aspect ratio while covering the container */
 }
 
 .card-body {
-  height: 200px; /* Adjust the height as per your requirement */
-  overflow: hidden; /* Ensures that content beyond the fixed height is hidden */
+  flex-grow: 1; /* Make the card body grow to fill the remaining space */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; /* Space out elements evenly */
+}
+
+
+.card-text {
+  flex-grow: 1; /* Allow the text to grow */
+  overflow: hidden; /* Hide overflow content */
+  display: -webkit-box; /* Required for webkit browsers */
+  -webkit-line-clamp: 3; /* Number of lines to show */
+  -webkit-box-orient: vertical; /* Required for webkit browsers */
+  line-clamp: 3; /* Number of lines to show */
+  box-orient: vertical; /* Required for legacy support */
+  margin-bottom: 1rem; /* Add some space at the bottom */
+}
+
+/* Media query for smaller screens */
+@media (max-width: 768px) {
+  .movie-card {
+    flex: 0 0 50%; /* Adjust the percentage for smaller screens */
+  }
+  .card-title{
+    font-size: 4vw;
+  }
+}
+
+
+
+.search-box{
+  height: auto;
+  width: 50vw;
+  padding-bottom:3%;
 }

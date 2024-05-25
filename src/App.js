@@ -1,7 +1,7 @@
 // import logo from './logo.svg';
+import React, { useEffect, useState } from 'react';
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import React, { useEffect, useState } from 'react';
 import SearchBar from './components/SearchBar';
 import MovieList from './components/MovieList';
 
@@ -28,7 +28,7 @@ const App = () => {
   }, [searchValue]);
 
   return (
-    <div className="App">
+    <div className="App" data-bs-theme="light">
       {/* <header className="App-header">
         <img src={logo} className="App-logo" alt="logo" />
         <p>
@@ -43,8 +43,8 @@ const App = () => {
           Learn React
         </a>
       </header> */}
-      <div className='container-fluid movie-app'>
-        <h1>Movie Search App</h1>
+      <div className='container-fluid movie-app' data-bs-theme="light">
+        <h1 className='header-text'>Movie Picker</h1>
         <SearchBar searchValue={searchValue} setSearchValue={setSearchValue}/>
         <MovieList movies={movies} setMovies={setMovies}/>
       </div>
