@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from 'react';
 import SearchBar from './SearchBar';
 import MovieList from './MovieList';
-import MyNavbar from './MyNavbar';
 import './styling/HomePage.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
@@ -32,7 +31,6 @@ const HomePage = ({isAuthenticated,setIsAuthenticated}) => {
 
   return (
     <>
-        <MyNavbar isAuthenticated={isAuthenticated}/>
         <div className='container-fluid movie-app' data-bs-theme="light">
             <h1 className='header-text'>Movie Picker</h1>
             <SearchBar searchValue={searchValue} setSearchValue={setSearchValue}/>

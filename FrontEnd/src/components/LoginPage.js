@@ -1,23 +1,25 @@
 // src/components/LoginPage.js
 
-import React, {useState} from 'react';
+import React, {useState, useContext} from 'react';
 import {useNavigate} from 'react-router-dom';
 import { Form, Button, Container, Row, Col, Card } from 'react-bootstrap';
 import MyNavbar from './MyNavbar';
+import { AuthContext } from '../context/AuthContext';
 
 // import axios from 'axios';
 import './styling/LoginPage.css'
 
-const LoginPage = ({ isAuthenticated, setIsAuthenticated }) => {
+const LoginPage = () => {
   
-    const navigate = useNavigate();
+  const navigate = useNavigate();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [isLoginMode, setIsLoginMode] = useState(true); // Determine if it's login or create user mode
+  const {login} = useContext(AuthContext);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-
+    
     const userData = {
       username: username,
       password: password,
@@ -38,8 +40,9 @@ const LoginPage = ({ isAuthenticated, setIsAuthenticated }) => {
       const result = await response.json();
       if (response.ok) {
         console.log('User authenticated successfully:', result);
-        setIsAuthenticated(true);
-        navigate('/');
+        const token = result._id;
+        console.log('Token:', token)
+        login(token);
       } else {
         console.error('Error authenticating user:', result.message);
       }
@@ -47,9 +50,11 @@ const LoginPage = ({ isAuthenticated, setIsAuthenticated }) => {
       console.error('Error authenticating user:', error);
     }
 
+    
     // Clear the form fields after submission
     setUsername('');
     setPassword('');
+    navigate('/');
   };
 
   const toggleMode = () => {
@@ -60,9 +65,8 @@ const LoginPage = ({ isAuthenticated, setIsAuthenticated }) => {
     setPassword('');
   };
 
+
   return (
-    <>
-    <MyNavbar isAuthenticated={isAuthenticated}/>
       <Container className="d-flex justify-content-center align-items-center min-vh-100">
         <Row className="w-100">
           <Col md={{ span: 6, offset: 3 }}>
@@ -108,7 +112,6 @@ const LoginPage = ({ isAuthenticated, setIsAuthenticated }) => {
           </Col>
         </Row>
       </Container>
-    </>
   );
 };
 
