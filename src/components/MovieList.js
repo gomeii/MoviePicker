@@ -1,5 +1,6 @@
 import React from 'react';
 import CarouselCard from './CarouselCard';
+import './styling/MovieList.css';
 
 const MovieList = ({ movies }) => {
   return (

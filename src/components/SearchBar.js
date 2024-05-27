@@ -1,4 +1,5 @@
 import React from 'react';
+import './styling/SearchBar.css';
 
 const SearchBar = ({ searchValue, setSearchValue }) => {
   const handleInputChange = (event) => {

@@ -1,0 +1,32 @@
+.movie-list {
+    width: 100%;
+    height: auto;
+    padding-left: 2%;
+    padding-right: 2%;
+    display: flex;
+    overflow-x: auto;
+    justify-content:space-evenly;
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+  }
+  
+  
+  .movie-card {
+    flex: 0 0 20%; /* Adjust the percentage as needed */
+    margin-right: 2rem; /* Space between cards */
+    box-sizing: border-box; /* Ensure padding and border are included in the width and height */
+    min-height: 60vh;
+    max-height: max-content;
+    min-width: 10vw;
+    width: auto;
+  }
+
+  /* Media query for smaller screens */
+@media (max-width: 768px) {
+  .movie-card {
+    flex: 0 0 50%; /* Adjust the percentage for smaller screens */
+  }
+  .card-title{
+    font-size: 4vw;
+  }
+}

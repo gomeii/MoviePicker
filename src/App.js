@@ -1,55 +1,25 @@
 // import logo from './logo.svg';
-import React, { useEffect, useState } from 'react';
-import './App.css';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import SearchBar from './components/SearchBar';
-import MovieList from './components/MovieList';
+import React, {useState} from 'react';
+import { BrowserRouter as Router, Route, Routes} from 'react-router-dom';
+import LoginPage from './components/LoginPage';
+import HomePage from './components/HomePage';
+import './App.css'
+// import PrivateRoute from './components/PrivateRoute';
 
 const App = () => {
-  const [movies, setMovies] = useState([]);
-  const [searchValue, setSearchValue] = useState('');
 
-  // Fetch movies based on search term
-  const fetchMovies = async (searchValue) => {
-
-    const url= `http://www.omdbapi.com/?apikey=36043e2&s=${searchValue}`;
-    
-    const response = await fetch(url);
-    const responseJson = await response.json();
-
-    if(responseJson.Search){
-      console.log(responseJson);
-      setMovies(responseJson.Search);
-    }
-  };
-
-  useEffect(() => {
-    fetchMovies(searchValue);
-  }, [searchValue]);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   return (
-    <div className="App" data-bs-theme="light">
-      {/* <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          <code>src/App.js</code>
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header> */}
-      <div className='container-fluid movie-app' data-bs-theme="light">
-        <h1 className='header-text'>Movie Picker</h1>
-        <SearchBar searchValue={searchValue} setSearchValue={setSearchValue}/>
-        <MovieList movies={movies} setMovies={setMovies}/>
+    <Router>
+      <div className='App'>
+        <Routes>
+          <Route path="/" element={<HomePage isAuthenticated={isAuthenticated}/>} />
+          <Route path="/login" element={<LoginPage isAuthenticated={isAuthenticated} setIsAuthenticated={setIsAuthenticated}/>} />
+        </Routes>
       </div>
-    </div>
+    </Router>
   );
-}
+};
 
 export default App;
