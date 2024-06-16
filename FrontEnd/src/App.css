@@ -48,20 +48,3 @@ body {
   background: black;
   color: white;
 }
-
-/* .search-container {
-  margin-bottom: 5rem; /* Add space between search box and movie list 
-} */
-
-/* 
-.movie-list-container {
-  height: 100%;
-  flex: 1; /* Grow to fill remaining vertical space
-  overflow-y: auto; /* Enable vertical scrolling if needed
-} */
-
-/* .card {
-  display: flex;
-  flex-direction: column;
-  height: 100%; /* Ensure the card takes full height of the movie-card div 
-} */

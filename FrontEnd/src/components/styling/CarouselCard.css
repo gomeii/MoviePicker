@@ -32,7 +32,7 @@
     display: -webkit-box; /* Required for webkit browsers */
     -webkit-line-clamp: 3; /* Number of lines to show */
     -webkit-box-orient: vertical; /* Required for webkit browsers */
-    line-clamp: 3; /* Number of lines to show */
+    line-clamp: 5; /* Number of lines to show */
     box-orient: vertical; /* Required for legacy support */
     margin-bottom: 1rem; /* Add some space at the bottom */
   }
@@ -46,3 +46,8 @@
       font-size: 4vw;
     }
   }
+
+.button-container{
+  justify-content: space-between;
+  width:100%;
+}
