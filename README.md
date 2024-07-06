@@ -1,70 +1,89 @@
-# Getting Started with Create React App
+# Getting Started with the MoviePicker Application
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-## Available Scripts
+## Description 
 
-In the project directory, you can run:
+This is a personal project I created to try and get familiar with web development frameworks and full stack development. This is a simple full stack application that uses the OMDb API to query movies and tv-shows. This also allows users to sign up and login and save the movies/shows that they like to their account as well as remove the movies/shows that they do not like anymore. It is supposed to be a cheap imitiation of sites such as letterbox and imdb. 
 
-### `npm start`
+## Directory Structure
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+This directory contains a Client (Frontend) structure made mostly with React and CSS, a Server (Backend) strucutre made mostly of the MongoDB manipulation from the api routes using Express and Mongoose as the mongo driver. This directory most likely has some unecessary node packages that I gathered over the time of working on this. 
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+    |- Frontend
+    | |- node modules (npm dependencies)
+    | |- public (landing of create-react-app)
+    | |- src (the bulk of the client components )
+    | |- .env
+    | |- .gitattributes (github misc)
+    | |- .gitignore (github misc)
+    | |- Dockerfile (container file to run locally)
+    | |- package-lock.json (npm dependecies)
+    | |- package.json (npm dependecies)
+    |- Backend
+    | |- controllers (express backend logic)
+    | |- models (mongodb collection schema)
+    | |- node modules (npm dependecies)
+    | |- routes (api routing)
+    | |- .env
+    | |- Dockerfile (container file to run locally)
+    | |- package-lock.json (npm dependecies)
+    | |- package.json (npm dependecies)
+    |- node modules (probably unecessary)
+    |- docker-compose.yml (orchestrate containers)
+    |- init-mongo.js (will set collections on init)
+    |- package-lock.json (npm dependecies)
+    |- package.json (npm dependecies)
+    |- README.md (what you are reading)
 
-### `npm test`
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### Containerization 
 
-### `npm run build`
+This project comes equipped with Dockerfiles and docker-compose files to facilitate running the application locally.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### Pre-requisites
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+#### API KEY
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+`https://www.omdbapi.com/apikey.aspx`
 
-### `npm run eject`
+Once you have the api key you will:
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+0. [apikey] = Key recieved from https://www.omdbapi.com/apikey.aspx
+1. Navigate to the Frontend Folder
+2. Go to the .env File
+3. Change the environment variable REACT_APP_OMDB_API_KEY to your api key
+4. .env file should be REACT_APP_OMDB_API_KEY=[apikey]
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+#### Docker
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+Make sure you have docker installed on your machine to be able to run the containers and orchestrate them using docker-compose 
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+That can be downloaded here: https://www.docker.com/get-started/
 
-## Learn More
+#### MongoDB 
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+It is helpful to have mongodb compass installed on your computer to see the changes to the database locally through an intuitive interface. 
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+That can be downloaded here: https://www.mongodb.com/try/download/compass
 
-### Code Splitting
+## Quickstart Guide 
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+1. Clone the repository to your local machine using the command
+`git clone https://github.com/gomeii/MoviePicker.git"` in the terminal 
+(or any other method of cloning repositories)
 
-### Analyzing the Bundle Size
+2. Open up a terminal
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+3. Navigate to the main folder `MoviePicker`
 
-### Making a Progressive Web App
+4. Run the command `docker-compose build --no-cache`. This will create the containers for each of the structures of the application utilizing the docker-compose.yml file
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+5. Once the containers are finished building. Run the command `docker-compose up`
+This will start the containers.
 
-### Advanced Configuration
+6. From here you should be able to view the application from the browser at [http://localhost:3000]
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+#### Troubleshooting
 
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+Somtimes the local database takes a second to set up and this causes the frontend application not be able to do any of the functions relating to saving/removing or user authentication. An easy fix for this is to just restart the containers until they are all happy with the initialization
