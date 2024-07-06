@@ -13,7 +13,8 @@ const HomePage = () => {
   const [movies, setMovies] = useState([]);
   const [savedMovies, setSavedMovies] = useState([]);
   const [searchValue, setSearchValue] = useState('');
-
+  // Received from the dockerfile environment variables
+  const API_URL = process.env.REACT_APP_API_URL;
 
   useEffect(() => {
     const fetchMovies = async () => {
@@ -33,13 +34,12 @@ const HomePage = () => {
     fetchMovies();
   }, [searchValue]);
 
-
   const fetchSavedMovies = async (user) => {
     const id = localStorage.getItem('token');
     // const user = JSON.parse(localStorage.getItem('user'));
     if( isAuthenticated){
       try {
-        const baseAddress = 'http://localhost:5000';
+        const baseAddress = API_URL;
         const GetEndpoint = `/api/users/${id}/movies`;
         const endpoint = baseAddress + GetEndpoint;
         console.log(endpoint);
@@ -59,14 +59,12 @@ const HomePage = () => {
     }
   };
 
-  useEffect(() => {
-    fetchSavedMovies();
-  }, [isAuthenticated]);
+
 
   const removeSavedMovie = async (movieID) => {
     if (isAuthenticated) {
       console.log("Movie trying to be removed from user profile: " ,movieID)
-      const baseAddress = 'http://localhost:5000';
+      const baseAddress = API_URL;
       const removeEndpoint = `/api/users/removeMovie`;
       const endpoint = baseAddress + removeEndpoint;
       const userID = localStorage.getItem('token');
@@ -82,8 +80,9 @@ const HomePage = () => {
           }),
         });
 
-        if (response.ok) {
-          fetchSavedMovies(); // Refresh the saved movies list
+        if (response.status === 200) {
+          fetchSavedMovies();
+          console.log('Movie removed successfully:', response.statusText);
         } else {
           console.error('Failed to remove movie:', response.statusText);
         }
@@ -92,7 +91,10 @@ const HomePage = () => {
       }
     }
   };
-
+  
+  useEffect(() => {
+    fetchSavedMovies();
+  }, [isAuthenticated]);
   
   return (
     <>

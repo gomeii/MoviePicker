@@ -14,7 +14,7 @@ const LoginPage = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [isLoginMode, setIsLoginMode] = useState(true); // Determine if it's login or create user mode
-  const {login} = useContext(AuthContext);
+  const {login, createUser} = useContext(AuthContext);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -25,30 +25,11 @@ const LoginPage = () => {
     };
 
     // Determine the API endpoint based on the mode
-    const endpoint = isLoginMode ? '/api/auth/login' : '/api/users/create';
-
-    try {
-      const response = await fetch(`http://localhost:5000${endpoint}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(userData),
-      });
-
-      const result = await response.json();
-      if (response.ok) {
-        console.log('User authenticated successfully:', result);
-        const token = result._id;
-        console.log('Token:', token)
-        login(token);
-      } else {
-        console.error('Error authenticating user:', result.message);
-      }
-    } catch (error) {
-      console.error('Error authenticating user:', error);
+    if (isLoginMode) {
+      await login(username, password);
+    } else {
+      await createUser(username, password);
     }
-
     
     // Clear the form fields after submission
     setUsername('');

@@ -1,5 +1,6 @@
 const Movie = require('../models/movie');
 const User = require('../models/user');
+const movieController = require('./movieController'); // Adjust the path as needed
 
 // Add Movie to Users Profile
 exports.addUserMovie = async (req,res) => {
@@ -21,12 +22,10 @@ exports.addUserMovie = async (req,res) => {
       return res.status(404).json({ message: 'User not found' });
     }
     
-    // Check if the movie already exists in the global collection
-    let movie = await Movie.findOne({ imdbID: additionalInfo.imdbID });
+    // Add the movie to the global collection
+    let movie = await movieController.addMovieToGlobalCollection(additionalInfo);
     if (!movie) {
-      // If it doesn't exist, create a new movie document
-      movie = new Movie(additionalInfo);
-      await movie.save();
+      return res.status(500).json({ message: 'Error adding movie to global collection' });
     }
 
     // Check if the movie already exists in the user's profile
@@ -50,10 +49,9 @@ exports.addUserMovie = async (req,res) => {
 };
 
 exports.removeUserMovie = async (req,res) => {
-  // movieID should be the imdbID, which will first be looked up on the movies model, then checked if that objectID exists on the user profile
-  // console.log(req.body);
+  // movieID = imdbID
+  // userID = <user>._id (objectId)
   const {userID , movieID} = req.body;
-  // console.log("Movie ID trying to be removed: ", movieId);
   try {
     // Validate the incoming movie object
     validMovie = (movieID !== null);
@@ -64,25 +62,30 @@ exports.removeUserMovie = async (req,res) => {
     
     // Find the user by ID
     const user = await User.findById(userID);
+    console.log(user);
     if (!user) {
       console.log("error with determining user");
       return res.status(404).json({ message: 'User not found' });
     }
 
-    // Check if the movie already exists in the global collection
-    let movie = await Movie.findOne({ imdbID: movieID });
-    if (!movie) {
-      // If it doesn't exist, fail because it cannot exists on the users profile
-      return res.status(404).json({message: 'Movie could not be found'})
+    // Try and find movie in the global collection by the imbdID passed in from the user
+    let movie = Movie.findOne({imdbID: movieID});
+    if (!movie){
+      res.status(500).json({message: 'There is no movie in the global collection. Movie cannot exist in user profile', error});
     }
 
-    user.movies.remove({_id: movie._id});
-    // Save the updated user document
-    await user.save();
-
-    res.status(200).json({ message: 'Movie removed successfully', movies: user.movies });
+    // Decrement the movie's counter in the global collection
+    let movieObject = await movieController.removeMovieFromGlobalCollection(userID,movieID);
+    if (movieObject === null) {
+      // If the movieObject is null that means it was removed from the global collection
+      // This movieObject also needs to be removed from the user profile
+      res.status(200).json({ message: 'Movie removed from global collection and user profile', movies: user.movies});
+    }else{
+      res.status(200).json({ message: 'Movie removed successfully', movies: user.movies });
+    }
+    
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error });
+    res.status(500).json({ message: 'Server error in function removeUserMovie', error: error });
   }
 }
 

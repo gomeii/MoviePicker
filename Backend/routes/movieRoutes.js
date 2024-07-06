@@ -1,8 +1,8 @@
 const express = require('express');
-const { addMovie, removeMovie } = require('../controllers/movieController');
+const  {addMovieToGlobalCollection, removeMovieFromGlobalCollection } = require('../controllers/movieController');
 const router = express.Router();
 
-router.post('/add', addMovie);
-router.post('/remove', removeMovie);
+router.post('/add', addMovieToGlobalCollection);
+router.post('/remove', removeMovieFromGlobalCollection);
 
 module.exports = router;

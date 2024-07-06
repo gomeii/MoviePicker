@@ -5,13 +5,13 @@ import { FaHeart ,FaRegHeart, FaTimes} from 'react-icons/fa';
 import './styling/CarouselCard.css'
 import { AuthContext } from '../context/AuthContext';
 
-
+const API_URL = process.env.REACT_APP_API_URL;
 const CarouselCard = ({ movie, onMovieSaved, onMovieRemoved, showSaveButton}) => {
   const [additionalInfo,setAdditionalInfo] = useState({})
   const { isAuthenticated} = useContext(AuthContext);
 
   const handleSaveMovie = async (additionalInfo) => {
-    const baseAddress = 'http://localhost:5000';
+    const baseAddress = API_URL;
     const AddEndpoint = '/api/users/addMovie';
     try {
       const userID = localStorage.getItem("token");

@@ -1,53 +1,86 @@
 const User = require('../models/user');
+const Movie = require('../models/movie');
 
-// Add a movie to a user's profile
-exports.addMovie = async (req, res) => {
-
-  const {userID , additionalInfo} = req.body;
-
+// Add a movie to the global 
+exports.addMovieToGlobalCollection = async (movieData) => {
   try {
-    // Validate the incoming movie object
-    if (!additionalInfo || !additionalInfo.imdbID) {
-      return res.status(400).json({ message: 'Invalid movie data' });
+    console.log("In function addMovieToGlobalCollection, MovieID:", movieData.imdbID);
+    let movie = await Movie.findOne({ imdbID: movieData.imdbID });
+    // Only add movie to the global collection if it doesnt exist
+    if (!movie) {
+      console.log("Movie does not exist and is being created for the global collection")
+      movie = new Movie(movieData);
+      await movie.save();
     }
-
-    // Find the user by ID
-    const user = await User.findById(userID);
-
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-
-    // Check if the movie already exists in the user's profile
-    const movieExists = user.movies.some(m => additionalInfo.imdbID === additionalInfo.imdbID);
-    if (movieExists) {
-      return res.status(400).json({ message: 'Movie already in profile' });
-    }
-
-    // Add the movie object to the user's movies array
-    user.movies.push(additionalInfo);
-
-    // Save the updated user document
-    await user.save();
-
-    res.status(200).json({ message: 'Movie saved successfully', movies: user.movies });
+    // Increment Global Movie Counter
+    await exports.incrementMovieCounter(movieData.imdbID); // Increment counter
+    return movie;
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error });
+    console.error('Error adding movie to global collection:', error);
+    throw error;
   }
 };
 
-// Remove a movie from a user's profile
-exports.removeMovie = async (req, res) => {
+// Remove a movie from the global collection (No users can have this movie in their profile)
+exports.removeMovieFromGlobalCollection = async (userID, movieID) => {
   try {
-    const { userId, movieId } = req.body;
-    await Movie.findByIdAndDelete(movieId);
+    console.log("In function removeMovieFromGlobalCollection, MovieID:", movieID);
+    const movie = await exports.decrementMovieCounter(userID,movieID); // Decrement counter
+    return movie;
+  } catch (error) {
+    console.error('Error removing movie from global collection:', error);
+    throw error;
+  }
+};
 
-    const user = await User.findById(userId);
-    user.movies = user.movies.filter(movie => movie.toString() !== movieId);
+
+// Increment Movie Counter
+exports.incrementMovieCounter = async (movieID) => {
+  try {
+    const movie = await Movie.findOne({imdbID: movieID});
+    if (!movie) {
+      throw new Error('Movie not found');
+    }
+    movie.UserCounter += 1;
+    await movie.save();
+    return movie;
+  } catch (error) {
+    console.error('Error incrementing movie counter:', error);
+    throw error;
+  }
+};
+
+// Decrement Movie Counter
+exports.decrementMovieCounter = async (userID, movieID) => {
+  try {
+    // console.log("From within decrementMovieCounter, movieID:",movieID);
+    const movie = await Movie.findOne({imdbID: movieID});
+    console.log("From within decrementMovieCounter:", movie);
+    const user = await User.findById(userID);
+    console.log("Inside of decrementMovieCounter, User:", user);
+    if (!movie) {
+      throw new Error('Movie not found');
+    }
+    // Remove the movie from the user Profile
+    user.movies.pull(movie._id);
+    // Save the updated user document
     await user.save();
 
-    res.status(200).json({ message: 'Movie removed' });
+    // Ensure counter does not go below 0
+    if (movie.UserCounter > 0) {
+      movie.UserCounter -= 1;
+    }  
+    await movie.save();
+
+    // If counter drops below 1, remove the movie from the global collection
+    if (movie.UserCounter < 1) {
+      await movie.remove();
+      return null; // Signal that movie has been removed
+    }
+
+    return movie; // Return movie object to remove from user profile
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error('Error decrementing movie counter:', error);
+    throw error;
   }
 };

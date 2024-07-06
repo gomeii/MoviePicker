@@ -1,12 +1,13 @@
 // AuthContext.js
 import React, { createContext, useEffect, useState } from 'react';
 const AuthContext = createContext();
+const apiUrl = process.env.REACT_APP_API_URL;
 
 const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState(null);
 
-
+  
 
   useEffect( () => {
       const token = localStorage.getItem('token');
@@ -25,8 +26,10 @@ const AuthProvider = ({ children }) => {
 
   const login = async (username, password) => {
     try {
+      console.log("Trying to log in with username:", username);
+      console.log("Trying to log in with password:", password);
       // console.log("Authenticating user with token:", token)
-      const response = await fetch('http://localhost:5000/api/auth/login', {
+      const response = await fetch(`${apiUrl}/api/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -51,7 +54,7 @@ const AuthProvider = ({ children }) => {
   const createUser = async (username,password) => {
     try {
       // console.log("Authenticating user with token:", token)
-      const response = await fetch('http://localhost:5000/api/auth/create', {
+      const response = await fetch(`${apiUrl}/api/auth/create`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -87,7 +90,7 @@ const AuthProvider = ({ children }) => {
 
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, user, login, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, user, login, createUser, logout }}>
       {children}
     </AuthContext.Provider>
   );

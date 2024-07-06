@@ -25,7 +25,8 @@ const movieSchema = new mongoose.Schema({
   DVD: { type: String},
   BoxOffice: { type: String},
   Production: { type: String},
-  Website: {type: String}
+  Website: {type: String},
+  UserCounter: {type: Number, default: 0}
 });
 
 const Movie = mongoose.model('movies', movieSchema);
