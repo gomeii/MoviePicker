@@ -43,17 +43,35 @@ This project comes equipped with Dockerfiles and docker-compose files to facilit
 
 ### Pre-requisites
 
-#### API KEY
+#### FrontEnd Environment File
+
+You will need to create an OMDb API key at: 
 
 `https://www.omdbapi.com/apikey.aspx`
 
 Once you have the api key you will:
 
-0. [apikey] = Key recieved from https://www.omdbapi.com/apikey.aspx
 1. Navigate to the Frontend Folder
-2. Go to the .env File
-3. Change the environment variable REACT_APP_OMDB_API_KEY to your api key
-4. .env file should be REACT_APP_OMDB_API_KEY=[apikey]
+2. Create an .env File
+3. Create the environment variable REACT_APP_OMDB_API_KEY and set it to your api key
+4. Create the environment variable REACT_APP_API_URL and set it to "http://localhost:5000"
+4. .env file should be:
+
+    `REACT_APP_OMDB_API_KEY=[apikey]`
+
+    `REACT_APP_API_URL=http://localhost:5000`
+
+#### Backend Environment File
+
+1. Navigate to the Backend Folder
+2. Create an .env File
+3. Create the environment variable PORT and set it to 5000
+4. Create the environment variable MONGO_URI and set it to "mongodb://mongodb:27017/MoviePicker"
+4. .env file should be:
+
+    `PORT=5000`
+
+    `MONGO_URI=mongodb://mongodb:27017/MoviePicker`
 
 #### Docker
 
