@@ -13,7 +13,7 @@
   
   .movie-card {
     flex: 0 0 20%; /* Adjust the percentage as needed */
-    margin-right: 2rem; /* Space between cards */
+    margin-right: 1rem; /* Space between cards */
     box-sizing: border-box; /* Ensure padding and border are included in the width and height */
     min-height: 60vh;
     max-height: max-content;
@@ -21,10 +21,14 @@
     width: auto;
   }
 
-  /* Media query for smaller screens */
+  .card-title{
+    font-size: medium;
+  }
+
+ /* Media query for smaller screens */
 @media (max-width: 768px) {
   .movie-card {
-    flex: 0 0 50%; /* Adjust the percentage for smaller screens */
+    flex: 0 0 60%; /* Adjust the percentage for smaller screens */
   }
   .card-title{
     font-size: 4vw;
