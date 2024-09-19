@@ -3,9 +3,9 @@
 import React, {useState, useContext} from 'react';
 import {useNavigate} from 'react-router-dom';
 import { Form, Button, Container, Row, Col, Card } from 'react-bootstrap';
+import ErrorModal from './ErrorModal';
 import { AuthContext } from '../context/AuthContext';
 
-// import axios from 'axios';
 import './styling/LoginPage.css'
 
 const LoginPage = () => {
@@ -13,16 +13,13 @@ const LoginPage = () => {
   const navigate = useNavigate();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  // TODO: Implement stateful data to have as dependency on when to show the modal
+  const [showModal, setShowModal] = useState(false);
   const [isLoginMode, setIsLoginMode] = useState(true); // Determine if it's login or create user mode
-  const {login, createUser} = useContext(AuthContext);
+  const {login, createUser, error, clearError} = useContext(AuthContext);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    
-    const userData = {
-      username: username,
-      password: password,
-    };
 
     // Determine the API endpoint based on the mode
     if (isLoginMode) {
@@ -31,16 +28,22 @@ const LoginPage = () => {
       await createUser(username, password);
     }
     
-    // Clear the form fields after submission
-    setUsername('');
-    setPassword('');
-    navigate('/');
+    // If there's no error, navigate to the home page
+    if (!error) {
+      setUsername('');
+      setPassword('');
+      navigate('/');
+    }else{
+      console.log(error);
+    }
+
   };
 
   const toggleMode = () => {
     setIsLoginMode(!isLoginMode);
 
     // Clear the form fields when switching modes
+    clearError();
     setUsername('');
     setPassword('');
   };
@@ -50,9 +53,9 @@ const LoginPage = () => {
       <Container className="d-flex justify-content-center align-items-center min-vh-100">
         <Row className="w-100">
           <Col md={{ span: 6, offset: 3 }}>
-            <Card>
+            <Card className="login-container">
               <Card.Body>
-                <Card.Title className="text-center mb-4">
+                <Card.Title>
                   {isLoginMode ? 'Login' : 'Sign Up'}
                 </Card.Title>
                 <Form onSubmit={handleSubmit}>

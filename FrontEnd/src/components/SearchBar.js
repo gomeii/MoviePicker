@@ -1,7 +1,11 @@
 import React from 'react';
 import './styling/SearchBar.css';
 
+
+// Search Bar Logic implements search value state
 const SearchBar = ({ searchValue, setSearchValue }) => {
+  // searchValue prop = stateful data representing the value of what is currently inside the Search Bar form
+  // setSearchValue prop = function of the searchValue state data, which will update the searchValue represented inside other compoentns
   const handleInputChange = (event) => {
     setSearchValue(event.target.value);
   };
@@ -19,11 +23,3 @@ const SearchBar = ({ searchValue, setSearchValue }) => {
 };
 
 export default SearchBar;
-
-
-// const handleKeyDown = (event) => {
-//   // Trigger onChange only when Enter key is pressed
-//   if (event.key === 'Enter') {
-//     setSearchValue(event.target.value);
-//   }
-// };

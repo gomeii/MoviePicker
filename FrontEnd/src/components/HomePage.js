@@ -13,89 +13,74 @@ const HomePage = () => {
   const [movies, setMovies] = useState([]);
   const [savedMovies, setSavedMovies] = useState([]);
   const [searchValue, setSearchValue] = useState('');
+  
   // Received from the dockerfile environment variables
   const API_URL = process.env.REACT_APP_API_URL;
 
+  // Side Effect of the Stateful Data: searchValue (Whenever the search value is updated the fetchMovies() function updates the movies collection)
   useEffect(() => {
-    const fetchMovies = async () => {
-      if (searchValue !== '') {
-        const apiKey = process.env.REACT_APP_OMDB_API_KEY;
-        const url = `http://www.omdbapi.com/?apikey=${apiKey}&s=${searchValue}`;
-        const response = await fetch(url);
-        const responseJson = await response.json();
-
-        if (responseJson.Search) {
-          setMovies(responseJson.Search);
-        } else {
-          setMovies([]);
-        }
-      }
-    };
-    fetchMovies();
+    fetchMovies(searchValue);
   }, [searchValue]);
 
+  // Side Effect of the Stateful Data: isAuthenticated (Whenever the user is logged in, the fetchSavedMovies() function updates the saved movies collection)
+  useEffect(() => {
+    fetchSavedMovies();
+  }, [isAuthenticated]);
+
+
+  // Logic for Fetching Movie JSON Data from a Search Query
+  const fetchMovies = async (searchValue) => {
+    if (searchValue !== '') {
+      const apiKey = process.env.REACT_APP_OMDB_API_KEY;
+      const url = `http://www.omdbapi.com/?apikey=${apiKey}&s=${searchValue}`;
+      const response = await fetch(url);
+      const responseJson = await response.json();
+
+      if (responseJson.Search) {
+        setMovies(responseJson.Search);
+      } else {
+        setMovies([]);
+      }
+    }
+  };
+
+  // Logic for fetching the movies in a persons profile from the MongoDB database
   const fetchSavedMovies = async (user) => {
-    const id = localStorage.getItem('token');
     // const user = JSON.parse(localStorage.getItem('user'));
+    
+    // If the user isAuthenticated (maybe pointless since this function is a sideEffect of someone being authenticated)
     if( isAuthenticated){
+      // Retrieve User ID from Authentication cookie, TODO: this needs to be something other than the userID set as a browser cookie
+      const id = localStorage.getItem('token');
+      // Try Getting a response from the Backend for the User
       try {
         const baseAddress = API_URL;
         const GetEndpoint = `/api/users/${id}/movies`;
         const endpoint = baseAddress + GetEndpoint;
-        console.log(endpoint);
         const response = await fetch(endpoint, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
           },
         });
-      
-        const data = await response.json();
-        console.log(data);
-        setSavedMovies(data.movies || []);
-      } catch (error) {
-        console.error('Error fetching saved movies:', error);
-      }
-    }
-  };
-
-
-
-  const removeSavedMovie = async (movieID) => {
-    if (isAuthenticated) {
-      console.log("Movie trying to be removed from user profile: " ,movieID)
-      const baseAddress = API_URL;
-      const removeEndpoint = `/api/users/removeMovie`;
-      const endpoint = baseAddress + removeEndpoint;
-      const userID = localStorage.getItem('token');
-      try {
-        const response = await fetch(endpoint, {
-          method: 'DELETE',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            userID: userID,
-            movieID: movieID,
-          }),
-        });
-
-        if (response.status === 200) {
-          fetchSavedMovies();
-          console.log('Movie removed successfully:', response.statusText);
+        
+        // Error Handling of endpoint response
+        if (response.ok){
+          console.log('VALID HTTP Response from "id/movies" endpoint');
+          const data = await response.json();
+          // 
+          setSavedMovies(data.movies || []);
         } else {
-          console.error('Failed to remove movie:', response.statusText);
+          console.error('INVALID HTTP Response from addMovie endpoint');
         }
       } catch (error) {
-        console.error('Error removing movie:', error);
+        console.error('Error caught in fetching saved movies (async Promise Rejected)', error);
       }
     }
   };
   
-  useEffect(() => {
-    fetchSavedMovies();
-  }, [isAuthenticated]);
-  
+
+  // Home Page Component
   return (
     <>
     <h1 className='header-text'>Movie Picker</h1>
@@ -105,7 +90,7 @@ const HomePage = () => {
             <MovieList movies={movies} onMovieSaved={fetchSavedMovies} showSaveButton={true}/>
             <Row className='header'><h2 className='text-left'>Saved Movies</h2></Row>
             {isAuthenticated ? (
-                <MovieList movies={savedMovies} onMovieRemoved={removeSavedMovie} showSaveButton={false}/>
+                <MovieList movies={savedMovies} onMovieRemoved={fetchSavedMovies} showSaveButton={false}/>
             ) : (
               <Alert variant="warning" className="mt-3">
                 Please <Alert.Link href="/login">login/signup</Alert.Link> to save movies function.
