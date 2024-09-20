@@ -30,16 +30,46 @@ const HomePage = () => {
 
   // Logic for Fetching Movie JSON Data from a Search Query
   const fetchMovies = async (searchValue) => {
-    if (searchValue !== '') {
-      const apiKey = process.env.REACT_APP_OMDB_API_KEY;
-      const url = `http://www.omdbapi.com/?apikey=${apiKey}&s=${searchValue}`;
-      const response = await fetch(url);
-      const responseJson = await response.json();
 
-      if (responseJson.Search) {
-        setMovies(responseJson.Search);
-      } else {
-        setMovies([]);
+    // Only try to access the OMDb API if there is a non-empty string in the search bar
+    if (searchValue !== '') {
+      try{
+        const baseAddress = API_URL;
+        const searchEndpoint = `/api/search/query`
+        const endpoint = baseAddress + searchEndpoint
+        const response = await fetch(endpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({searchValue})
+        });
+
+        // Error Handling of endpoint response
+        // HTTP Response is good (200-299 Status Code)
+        if (response.ok){
+          // Set the Query Response Object
+          const searchQueryResponse = await response.json();
+          console.log(searchQueryResponse);
+          // Try to extract the proper values from the response
+          // IF query returns a movie array it will return the following items [movies: Array of movies with information, totalResults: Number of movies matching the searchValue, validResponse: true]
+          // ELSE query returns only the valid response variable [validResponse: false]
+          const {movies, totalResults, validResponse} = searchQueryResponse;
+          
+          console.log(validResponse);
+          // If there are new movies pulled in from the OMDb API endpoint set stateful movie data to so movie list will re render
+          // Else do nothing so that the movie list is not re rendered to 0 on empty movie list (will maintain previous state)
+          if(validResponse === "True"){
+            setMovies(movies);
+          }
+        
+        // HTTP Response is bad !=(200-299 Status Code)
+        } else {
+          console.error('INVALID HTTP Response from search endpoint');
+        }
+      // Catch any errors that arise from trying to fetch api response (most likely async promise rejection)
+      } catch (error) {
+        console.error('Error caught in fetching movies from OMDb API', error);
       }
     }
   };

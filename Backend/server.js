@@ -2,17 +2,18 @@ require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-
+ 
+const searchRoutes = require('./routes/searchRoutes');
 const userRoutes = require('./routes/userRoutes');
 const authRoutes = require('./routes/authRoutes');
 const movieRoutes = require('./routes/movieRoutes');
 const healthRoutes = require('./routes/healthRoutes');
-
+   
 const app = express();
-const PORT = 5000;
+const PORT = 5000; 
 const uri = process.env.MONGO_URI;
 const clientOptions = { 
-serverApi: {
+serverApi: { 
   version: '1',
   strict: true, 
   useUnifiedTopology: true,
@@ -27,6 +28,7 @@ app.use(cors());
 app.use(express.json());
 
 // Routes
+app.use('/api/search', searchRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/movies', movieRoutes);
