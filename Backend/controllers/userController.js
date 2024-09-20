@@ -51,10 +51,12 @@ exports.addUserMovie = async (req,res) => {
 exports.removeUserMovie = async (req,res) => {
   // movieID = imdbID
   // userID = <user>._id (objectId)
-  const {userID , movieID} = req.body;
+  const {userID , movieData} = req.body;
+  console.log("Request Body recieved in function removeUserMovie:", req.body);
+  console.log("Movie Data extracted from the request body:", movieData);
   try {
     // Validate the incoming movie object
-    validMovie = (movieID !== null);
+    validMovie = (movieData !== null);
     console.log("Movie is valid:", validMovie);
     if (!validMovie) {
       return res.status(400).json({ message: 'Invalid movie data' });
@@ -69,13 +71,14 @@ exports.removeUserMovie = async (req,res) => {
     }
 
     // Try and find movie in the global collection by the imbdID passed in from the user
-    let movie = Movie.findOne({imdbID: movieID});
+    console.log("Trying to remove movie from global collection with imdbID:", movieData.imdbID);
+    let movie = Movie.findOne({imdbID: movieData.imdbID});
     if (!movie){
       res.status(500).json({message: 'There is no movie in the global collection. Movie cannot exist in user profile', error});
     }
 
     // Decrement the movie's counter in the global collection
-    let movieObject = await movieController.removeMovieFromGlobalCollection(userID,movieID);
+    let movieObject = await movieController.removeMovieFromGlobalCollection(userID,movieData.imdbID);
     if (movieObject === null) {
       // If the movieObject is null that means it was removed from the global collection
       // This movieObject also needs to be removed from the user profile

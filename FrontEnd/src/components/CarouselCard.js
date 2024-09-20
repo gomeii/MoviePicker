@@ -55,11 +55,10 @@ const CarouselCard = ({ movie, onMovieSaved, onMovieRemoved, showSaveButton}) =>
     // Only Remove if the User is Authenticated (Potentially pointless since the button should not render unless the user is signed in/authenticated)
     if (isAuthenticated) {
       console.log("Movie trying to be removed from user profile: " , additionalInfo)
+      console.log("Movie id trying to be removed from user profile: ", additionalInfo.imdbID);
       const baseAddress = API_URL;
       const removeEndpoint = `/api/users/removeMovie`;
       
-    
-
       try {
         // Get authentication cookie "token" that matches state in the Database backend of someone that is currently logged in
         const userID = localStorage.getItem('token');
@@ -68,7 +67,7 @@ const CarouselCard = ({ movie, onMovieSaved, onMovieRemoved, showSaveButton}) =>
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({userID, additionalInfo}),
+          body: JSON.stringify({userID: userID, movieData: additionalInfo}),
         });
 
         if (response.ok){

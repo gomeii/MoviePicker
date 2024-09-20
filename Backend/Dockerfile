@@ -1,5 +1,5 @@
 # Use an official node image as the base image
-FROM node:14
+FROM node:18
 
 # Set the working directory
 WORKDIR /app
@@ -12,10 +12,6 @@ RUN npm install
 
 # Copy the rest of the application code
 COPY . .
-
-# Set the environment variables
-ENV PORT=5000
-ENV MONGO_URI=mongodb://mongodb:27017/MoviePicker
 
 # Expose the port the app runs on
 EXPOSE 5000

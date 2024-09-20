@@ -34,7 +34,7 @@ const LoginPage = () => {
       setPassword('');
       navigate('/');
     }else{
-      console.log(error);
+      console.log("Invalid Authentication, Try Again");
     }
 
   };

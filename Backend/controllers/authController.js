@@ -33,20 +33,23 @@ exports.loginUser = async (req, res) => {
 exports.createUser = async (req, res) => {
   const { username, password } = req.body;
   console.log("Create user request:", req.body);
-  // TO DO: Add Logic to make sure a user doesnt already exists
   const user = await User.findOne({username : username});
+  console.log(user);
   // If user object is not null that means there already exists a user in the database that has that username
-  if(user){
-    return res.status(500).JSON.stringify({message: 'This user already exists, Use another username!'});
+  if(user !== null){
+    return res.status(500).json({message: 'This user already exists, Use another username!'});
   // Else, user object is null which means that there is no user that exists with that userName
   }else{
+    console.log("No User found with that username, gonna try to create a new user object");
     try { 
       // Create a newUser object with the "User" schema model constructor
       const newUser = new User({ username: username, password: password});
       // Save the newUser object to the database and await the response
       await newUser.save();
-      // Once newUser is saved return the 201 HTTP status code and the newUser object 
-      return res.status(201).JSON.stringify({userData: newUser});
+      // Once newUser is saved return the 201 HTTP status code and the newUser object
+      const userData = JSON.stringify(newUser);
+      console.log("Returning userData:", userData); 
+      return res.status(200).json(userData);
     } catch (error) {
       // Catch any errors that come up when trying to create a newUser object in the database
       return res.status(500).json({ message: error.message });

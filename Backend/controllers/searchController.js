@@ -5,7 +5,11 @@ exports.searchReq = async (req,res) => {
     const apiKey = process.env.REACT_APP_OMDB_API_KEY;
 
     try { 
+
         const url = `http://www.omdbapi.com/?apikey=${apiKey}&s=${searchValue}`;
+        
+        console.log("API ENDPOINT FOR SEARCHING:", url);
+        
         const response = await fetch(url);
         
         // Response is ok (200-299 Status Code)

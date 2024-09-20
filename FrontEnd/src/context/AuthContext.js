@@ -37,9 +37,9 @@ const AuthProvider = ({ children }) => {
       });
       // JSON Response from backend
       const userData = await response.json();
-      const userDataObject = JSON.parse(userData);
       // If response is ok means that the user has logged in successfully
       if (response.ok) {
+        const userDataObject = JSON.parse(userData);
         // Set stateful data 
         setIsAuthenticated(true);
         setUser(userDataObject);
@@ -75,18 +75,20 @@ const AuthProvider = ({ children }) => {
         },
         body: JSON.stringify(userData),
       });
-      // If response status == 201 Means that the newUser object was created and added to the database  
-      if (response.status == 201) {
-        console.log(res.body)
-        const newUser = res.body.JSON.parse()
-        console.log(newUser)
+      const userObject = await response.json();
+      // If response status code is 200-299 means that endpoint responded appropriately 
+      if (response.ok) {
+        const userDataObject = JSON.parse(userObject);
+        console.log(userDataObject);
         // Set Stateful Data
         setIsAuthenticated(true);
-        setUser(userData);
+        setUser(userDataObject);
         setError(null);
-        localStorage.setItem('token', userData._id); // Optional: Store token in local storage
-        localStorage.setItem('user', JSON.stringify(userData));
-      } else {
+        localStorage.setItem('token', userDataObject._id); // Optional: Store token in local storage
+        localStorage.setItem('user', JSON.stringify(userDataObject));
+      } 
+      // If response status is bad != 200-299 status code then set error and console log the error message
+      else {
         setError(true);
         console.error('Login failed:', userData.message);
       }
@@ -104,13 +106,7 @@ const AuthProvider = ({ children }) => {
     setUser(null);
   };
 
-  const fetchUser = () => {
-    
-  }
-
   const clearError = () => setError(null);
-
-
 
   return (
     <AuthContext.Provider value={{ isAuthenticated, user, error, clearError, login, createUser, logout }}>
