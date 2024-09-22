@@ -13,7 +13,6 @@ const MyNavbar = () => {
   
     return (
         <Navbar bg="dark" variant="dark" className='my-navbar'>
-          {/* <Navbar.Brand as={Link} to="/">Movie</Navbar.Brand> */}
           <Nav className="mr-auto">
             <Nav.Link as={Link} to="/">Home</Nav.Link>
             <Nav.Link as={Link} to="/login" onClick={isAuthenticated ? logout : null}>

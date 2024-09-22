@@ -3,9 +3,9 @@
 import React, {useState, useContext} from 'react';
 import {useNavigate} from 'react-router-dom';
 import { Form, Button, Container, Row, Col, Card } from 'react-bootstrap';
-import ErrorModal from './ErrorModal';
 import { AuthContext } from '../context/AuthContext';
-
+// TODO: Implement functionality to display modal on login error
+// import ErrorModal from './ErrorModal';
 import './styling/LoginPage.css'
 
 const LoginPage = () => {
@@ -14,7 +14,7 @@ const LoginPage = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   // TODO: Implement stateful data to have as dependency on when to show the modal
-  const [showModal, setShowModal] = useState(false);
+  // const [showModal, setShowModal] = useState(false);
   const [isLoginMode, setIsLoginMode] = useState(true); // Determine if it's login or create user mode
   const {login, createUser, error, clearError} = useContext(AuthContext);
 

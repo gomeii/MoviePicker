@@ -34,9 +34,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/movies', movieRoutes);
 app.use('/api/health', healthRoutes);
 
-// console.log(uri);
-
-// MongoDB Connection
+// MongoDB Connection Function Definition
 async function run() {
   try {
     await mongoose.connect(uri, clientOptions);
@@ -47,8 +45,10 @@ async function run() {
   }
 }
 
+// Run MongoDb Connection
 run();
 
+// Begin listening to HTTP Messages on Port 5000
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });

@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useContext} from 'react';
 import { Card, Button } from 'react-bootstrap';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { FaHeart ,FaRegHeart, FaTimes} from 'react-icons/fa';
 import './styling/CarouselCard.css'
 import { AuthContext } from '../context/AuthContext';
@@ -84,7 +83,7 @@ const CarouselCard = ({ movie, onMovieSaved, onMovieRemoved, showSaveButton}) =>
     }
   };
   
-  // Side Effect triggered on changes of the movie object
+  // Side Effect triggered on changes of the movie object (Basic string search query yields less data about each movie so we search for additionalInfo utilizing the imdbID)
   useEffect(() => {
     const fetchAdditionalInfo = async () => {
       try {

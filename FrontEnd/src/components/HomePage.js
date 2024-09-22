@@ -37,6 +37,7 @@ const HomePage = () => {
         const baseAddress = API_URL;
         const searchEndpoint = `/api/search/query`
         const endpoint = baseAddress + searchEndpoint
+        console.log(endpoint)
         const response = await fetch(endpoint, {
           method: 'POST',
           headers: {
