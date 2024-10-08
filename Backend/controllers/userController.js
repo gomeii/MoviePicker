@@ -6,6 +6,7 @@ const movieController = require('./movieController'); // Adjust the path as need
 exports.addUserMovie = async (req,res) => {
   
   const {userID , additionalInfo} = req.body;
+  console.log(req.body);
   try {
     // Validate the incoming movie object
     validMovie = (additionalInfo !== null || additionalInfo.imdbID !== null);

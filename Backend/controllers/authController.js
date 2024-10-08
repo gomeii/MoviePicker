@@ -16,7 +16,7 @@ exports.loginUser = async (req, res) => {
     if (!user || user.password !== password) {
       console.log("Invalid Login, User DNE or Username & Password do not match");
       // Return 401 Status Response and Message: "Invalid Credentials"
-      return res.status(500).json({ message: 'Invalid credentials' },);
+      return res.status(400).json({ message: 'Invalid credentials' },);
     }
     else{
       const userData = JSON.stringify(user);
@@ -37,7 +37,7 @@ exports.createUser = async (req, res) => {
   console.log(user);
   // If user object is not null that means there already exists a user in the database that has that username
   if(user !== null){
-    return res.status(500).json({message: 'This user already exists, Use another username!'});
+    return res.status(400).json({message: 'This user already exists, Use another username!'});
   // Else, user object is null which means that there is no user that exists with that userName
   }else{
     console.log("No User found with that username, gonna try to create a new user object");
@@ -52,7 +52,7 @@ exports.createUser = async (req, res) => {
       return res.status(200).json(userData);
     } catch (error) {
       // Catch any errors that come up when trying to create a newUser object in the database
-      return res.status(500).json({ message: error.message });
+      return res.status(400).json({ message: error.message });
     }
   }
 };

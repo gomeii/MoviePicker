@@ -4,7 +4,7 @@ const Movie = require('../models/movie');
 // Add a movie to the global 
 exports.addMovieToGlobalCollection = async (movieData) => {
   try {
-    console.log("In function addMovieToGlobalCollection, MovieID:", movieData.imdbID);
+    console.log("In function addMovieToGlobalCollection, Movie data:", movieData);
     let movie = await Movie.findOne({ imdbID: movieData.imdbID });
     // Only add movie to the global collection if it doesnt exist
     if (!movie) {

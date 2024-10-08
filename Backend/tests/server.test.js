@@ -1,6 +1,5 @@
 // Import dependencies
 const request = require('supertest');
-const express = require('express');
 const mongoose = require('mongoose');
 
 const app = require('../server');
@@ -17,14 +16,6 @@ afterAll(async () => {
     await mongoose.disconnect(); // Close MongoDB connection after tests
     server.close(); // Close the server
   });
-// // Sample test for the health check route
-// describe('Health Check API', () => {
-//   it('should return a status 200 and message "OK"', async () => {
-//     const res = await request(app).get('/api/health');
-//     expect(res.statusCode).toEqual(200);
-//     expect(res.body.message).toBe('OK');  // Adjust this based on your response structure
-//   });
-// });
 
 // Test for the search route with an empty query
 describe('Search API (Empty Query)', () => {
@@ -76,7 +67,7 @@ describe('Auth API (Login for Account that DNE)', () => {
     const res = await request(app)
       .post('/api/auth/login')
       .send({ username: 'John Doe', password: 'john@example123' }); // Example payload
-    expect(res.statusCode).toEqual(500);
+    expect(res.statusCode).toEqual(400);
     expect(res.body).toHaveProperty('message');
   });
 }); 
@@ -86,7 +77,7 @@ describe('Auth API (Invalid Login Credentials', () => {
       const res = await request(app)
         .post('/api/auth/login')
         .send({ username: 'NewUser', password: 'example123' }); // Example payload
-      expect(res.statusCode).toEqual(500);
+      expect(res.statusCode).toEqual(400);
       expect(res.body).toHaveProperty('message');
     });
   });
@@ -95,7 +86,7 @@ describe('Auth API (Login for Valid Account)', () => {
     it('Should try to log in for an account with invalid credentials', async () => {
       const res = await request(app)
         .post('/api/auth/login')
-        .send({ username: 'NewUser', password: '1234' }); // Example payload
+        .send({ username: 'USER_TEST', password: 'PASSWORD_TEST' }); // Example payload
       expect(res.statusCode).toEqual(200);
       // TODO: Maybe tweak the response body for a created account (currently returns the MongoDB user document)
       // expect(res.body).toHaveProperty('_id');
@@ -125,26 +116,144 @@ describe('Auth API, Creating an account that already exists', () => {
       const res = await request(app)
         .post('/api/auth/create')
         .send({ username: 'NewUser', password: '1234' });
-      expect(res.statusCode).toEqual(500);  // Adjust based on validation
+      expect(res.statusCode).toEqual(400);  // Adjust based on validation
     });
   }); 
 
-// Test for movie routes
-describe('Movie API', () => {
-  it('should return a list of movies', async () => {
-    const res = await request(app).get('/api/movies');
+// Test for User routes
+describe('User API, Adds movie to user profile', () => {
+  it('should add movie object to the user document', async () => {
+    const res = await request(app)
+    .post('/api/users/addMovie')
+    .send({
+        userID: '670492144e48ae47202db5a2',
+        additionalInfo: {
+          Title: 'Star Wars: Episode V - The Empire Strikes Back',
+          Year: '1980',
+          Rated: 'PG',
+          Released: '18 Jun 1980',
+          Runtime: '124 min',
+          Genre: 'Action, Adventure, Fantasy',
+          Director: 'Irvin Kershner',
+          Writer: 'Leigh Brackett, Lawrence Kasdan, George Lucas',
+          Actors: 'Mark Hamill, Harrison Ford, Carrie Fisher',
+          Plot: 'After the Empire overpowers the Rebel Alliance, Luke Skywalker begins his Jedi training with Yoda. At the same time, Darth Vader and bounty hunter Boba Fett pursue his friends across the galaxy.',
+          Language: 'English',
+          Country: 'United States, United Kingdom',
+          Awards: 'Won 1 Oscar. 27 wins & 20 nominations total',
+          Poster: 'https://m.media-amazon.com/images/M/MV5BYmU1NDRjNDgtMzhiMi00NjZmLTg5NGItZDNiZjU5NTU4OTE0XkEyXkFqcGdeQXVyNzkwMjQ5NzM@._V1_SX300.jpg',
+          Ratings: [
+            { Source: 'Internet Movie Database', Value: '8.7/10' },
+            { Source: 'Rotten Tomatoes', Value: '95%' },
+            { Source: 'Metacritic', Value: '82/100' }
+                  ],
+          Metascore: '82',
+          imdbRating: '8.7',
+          imdbVotes: '1,400,371',
+          imdbID: 'tt0080684',
+          Type: 'movie',
+          DVD: 'N/A',
+          BoxOffice: '$292,753,960',
+          Production: 'N/A',
+          Website: 'N/A',
+          Response: 'True'
+        }   
+    })
     expect(res.statusCode).toEqual(200);
-    expect(Array.isArray(res.body)).toBe(true); // Assuming it returns an array of movies
+  });
+});
+
+describe('User API, Adds movie to user profile that is already there', () => {
+  it('should add movie object to the user document', async () => {
+    const res = await request(app)
+    .post('/api/users/addMovie')
+    .send({
+        userID: '670492144e48ae47202db5a2',
+        additionalInfo: {
+          Title: 'Star Wars: Episode V - The Empire Strikes Back',
+          Year: '1980',
+          Rated: 'PG',
+          Released: '18 Jun 1980',
+          Runtime: '124 min',
+          Genre: 'Action, Adventure, Fantasy',
+          Director: 'Irvin Kershner',
+          Writer: 'Leigh Brackett, Lawrence Kasdan, George Lucas',
+          Actors: 'Mark Hamill, Harrison Ford, Carrie Fisher',
+          Plot: 'After the Empire overpowers the Rebel Alliance, Luke Skywalker begins his Jedi training with Yoda. At the same time, Darth Vader and bounty hunter Boba Fett pursue his friends across the galaxy.',
+          Language: 'English',
+          Country: 'United States, United Kingdom',
+          Awards: 'Won 1 Oscar. 27 wins & 20 nominations total',
+          Poster: 'https://m.media-amazon.com/images/M/MV5BYmU1NDRjNDgtMzhiMi00NjZmLTg5NGItZDNiZjU5NTU4OTE0XkEyXkFqcGdeQXVyNzkwMjQ5NzM@._V1_SX300.jpg',
+          Ratings: [
+            { Source: 'Internet Movie Database', Value: '8.7/10' },
+            { Source: 'Rotten Tomatoes', Value: '95%' },
+            { Source: 'Metacritic', Value: '82/100' }
+                  ],
+          Metascore: '82',
+          imdbRating: '8.7',
+          imdbVotes: '1,400,371',
+          imdbID: 'tt0080684',
+          Type: 'movie',
+          DVD: 'N/A',
+          BoxOffice: '$292,753,960',
+          Production: 'N/A',
+          Website: 'N/A',
+          Response: 'True'
+        }   
+    })
+    expect(res.statusCode).toEqual(400);
+  });
+});
+
+describe('User API, Removes movie from user profile', () => {
+  it('should remove movie object from the user document', async () => {
+    const res = await request(app)
+    .delete('/api/users/removeMovie')
+    .send({
+      userID: '670492144e48ae47202db5a2',
+      movieData: {
+        Title: 'Star Wars: Episode V - The Empire Strikes Back',
+        Year: '1980',
+        Rated: 'PG',
+        Released: '18 Jun 1980',
+        Runtime: '124 min',
+        Genre: 'Action, Adventure, Fantasy',
+        Director: 'Irvin Kershner',
+        Writer: 'Leigh Brackett, Lawrence Kasdan, George Lucas',
+        Actors: 'Mark Hamill, Harrison Ford, Carrie Fisher',
+        Plot: 'After the Empire overpowers the Rebel Alliance, Luke Skywalker begins his Jedi training with Yoda. At the same time, Darth Vader and bounty hunter Boba Fett pursue his friends across the galaxy.',
+        Language: 'English',
+        Country: 'United States, United Kingdom',
+        Awards: 'Won 1 Oscar. 27 wins & 20 nominations total',
+        Poster: 'https://m.media-amazon.com/images/M/MV5BYmU1NDRjNDgtMzhiMi00NjZmLTg5NGItZDNiZjU5NTU4OTE0XkEyXkFqcGdeQXVyNzkwMjQ5NzM@._V1_SX300.jpg',
+        Ratings: [
+          { Source: 'Internet Movie Database', Value: '8.7/10' },
+          { Source: 'Rotten Tomatoes', Value: '95%' },
+          { Source: 'Metacritic', Value: '82/100' }
+                ],
+        Metascore: '82',
+        imdbRating: '8.7',
+        imdbVotes: '1,400,371',
+        imdbID: 'tt0080684',
+        Type: 'movie',
+        DVD: 'N/A',
+        BoxOffice: '$292,753,960',
+        Production: 'N/A',
+        Website: 'N/A',
+        Response: 'True'
+      }
+    })
+    expect(res.statusCode).toEqual(200);
   });
 });
 
 // Test for auth routes
-describe('Auth API', () => {
-  it('should authenticate a user', async () => {
-    const res = await request(app)
-      .post('/api/auth/login')
-      .send({ email: 'john@example.com', password: 'password123' }); // Example payload
-    expect(res.statusCode).toEqual(200);
-    expect(res.body).toHaveProperty('token');  // Assuming it returns a token on login
-  });
-});
+// describe('Auth API', () => {
+//   it('should authenticate a user', async () => {
+//     const res = await request(app)
+//       .post('/api/auth/login')
+//       .send({ email: 'john@example.com', password: 'password123' }); // Example payload
+//     expect(res.statusCode).toEqual(200);
+//     expect(res.body).toHaveProperty('token');  // Assuming it returns a token on login
+//   });
+// });

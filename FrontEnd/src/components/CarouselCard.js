@@ -24,7 +24,7 @@ const CarouselCard = ({ movie, onMovieSaved, onMovieRemoved, showSaveButton}) =>
   const handleSaveMovie = async (additionalInfo) => {
     const baseAddress = API_URL;
     const AddEndpoint = '/api/users/addMovie';
-    
+
     // Get authentication cookie "token" that matches state in the Database backend of someone that is currently logged in
     try {
       const userID = localStorage.getItem("token");
