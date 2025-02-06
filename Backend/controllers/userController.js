@@ -1,91 +1,121 @@
 const Movie = require('../models/movie');
 const User = require('../models/user');
-const movieController = require('./movieController'); // Adjust the path as needed
+// const movieController = require('./movieController'); // Adjust the path as needed
+
+
 
 // Add Movie to Users Profile
 exports.addUserMovie = async (req,res) => {
-  
-  const {userID , additionalInfo} = req.body;
-  console.log(req.body);
   try {
-    // Validate the incoming movie object
-    validMovie = (additionalInfo !== null || additionalInfo.imdbID !== null);
-    console.log("Movie is valid:",validMovie);
+    const additionalInfo = req.body;
+    const userID = req.userID;
+
+    if (!userID) {
+      return res.status(401).json({ message: 'Unauthorized: Missing user ID' });
+    }
+    // Validate movie data
+    const validMovie = additionalInfo && additionalInfo.imdbID;
     if (!validMovie) {
       return res.status(400).json({ message: 'Invalid movie data' });
     }
     
     // Find the user by ID
     const user = await User.findById(userID);
-    console.log("User:", user);
+    req.log.info({ user }, "Trying to add movie to this user's profile");
+    
     if (!user) {
-      console.log("error with determining user");
       return res.status(404).json({ message: 'User not found' });
     }
     
-    // Add the movie to the global collection
-    let movie = await movieController.addMovieToGlobalCollection(additionalInfo);
-    if (!movie) {
-      return res.status(500).json({ message: 'Error adding movie to global collection' });
+    // Try to find the movie by the id
+    const movie = await Movie.findOne({ imdbID: await additionalInfo.imdbID });
+    // If the movie exists increment global counter and add it to the users movie array
+    if(movie){
+      const movieObjID = movie._id.toString();
+      req.log.info(movieObjID);
+      // Check if the movie already exists in the user's profile
+      const movieExists = user.movies.some(m => m.toString() === movie._id.toString());
+      if (movieExists) {
+        req.log.info("Movie already exists in the users profile");
+        return res.status(501).json({ message: 'Movie already in profile' });
+      }else{
+        // Add the movie object to the user's movies array
+        user.movies.push(movieObjID);
+        await user.save();
+        // Increment the user counter of the global movie
+        // await exports.incrementMovieCounter(movie);
+
+        res.status(200).json({ message: 'Movie saved successfully', movies: user.movies });
+      }
     }
+    // If the movie does not exist add it to the global movie collection
+    else{
+      const newMovie = new Movie(additionalInfo);
+      await newMovie.save();
 
-    // Check if the movie already exists in the user's profile
-    const movieExists = user.movies.includes(movie._id);
-    // console.log("Movie already exists in user profile: ", movieExists);
-    if (movieExists) {
-      return res.status(400).json({ message: 'Movie already in profile' });
+      const newMovieObjID = newMovie._id.toString()
+      req.log.info(newMovieObjID);
+
+      user.movies.push(newMovieObjID);
+      await user.save();
+
+      await exports.incrementMovieCounter(newMovie);
+
+      res.status(200).json({ message: 'Movie saved successfully', movies: user.movies });
     }
-
-    // Add the movie object to the user's movies array
-    user.movies.push(movie._id);
-    console.log("Pushed Movie to user profile")
-    // Save the updated user document
-
-    await user.save();
-
-    res.status(200).json({ message: 'Movie saved successfully', movies: user.movies });
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error });
+    req.log.error({error},"Error encountered:");
+    res.status(502).json({ message: 'Server error', error });
   }
 };
 
 exports.removeUserMovie = async (req,res) => {
   // movieID = imdbID
   // userID = <user>._id (objectId)
-  const {userID , movieData} = req.body;
-  console.log("Request Body recieved in function removeUserMovie:", req.body);
-  console.log("Movie Data extracted from the request body:", movieData);
   try {
-    // Validate the incoming movie object
-    validMovie = (movieData !== null);
-    console.log("Movie is valid:", validMovie);
+    const additionalInfo = req.body;
+    const userID = req.userID;
+
+    if (!userID) {
+      return res.status(401).json({ message: 'Unauthorized: Missing user ID' });
+    }
+    // Validate movie data
+    const validMovie = additionalInfo && additionalInfo.imdbID;
     if (!validMovie) {
       return res.status(400).json({ message: 'Invalid movie data' });
     }
     
     // Find the user by ID
     const user = await User.findById(userID);
-    console.log(user);
+    req.log.info({ user }, "Trying to remove movie from this user's profile");
+    
     if (!user) {
-      console.log("error with determining user");
       return res.status(404).json({ message: 'User not found' });
     }
 
-    // Try and find movie in the global collection by the imbdID passed in from the user
-    console.log("Trying to remove movie from global collection with imdbID:", movieData.imdbID);
-    let movie = Movie.findOne({imdbID: movieData.imdbID});
-    if (!movie){
-      res.status(500).json({message: 'There is no movie in the global collection. Movie cannot exist in user profile', error});
-    }
+    // Try to find the movie by the id
+    const movie = await Movie.findOne({ imdbID: await additionalInfo.imdbID });
+    // If the movie exists increment global counter and add it to the users movie array
+    if(movie){
+      const movieObjID = movie._id.toString();
+      req.log.info(movieObjID);
+      // Check if the movie already exists in the user's profile
+      const movieExists = user.movies.some(m => m.toString() === movie._id.toString());
+      if (!movieExists) {
+        req.log.info("Movie does not exist in the users profile");
+        return res.status(501).json({ message: 'Movie not in profile' });
+      }else{
+        // Remove the movie object to the user's movies array
+        user.movies = user.movies.filter(movieID => movieID !== movieData.imdbID);
+        await user.save();
+        // Decrement the user counter of the global movie
+        await exports.decrementMovieCounter(movie);
 
-    // Decrement the movie's counter in the global collection
-    let movieObject = await movieController.removeMovieFromGlobalCollection(userID,movieData.imdbID);
-    if (movieObject === null) {
-      // If the movieObject is null that means it was removed from the global collection
-      // This movieObject also needs to be removed from the user profile
-      res.status(200).json({ message: 'Movie removed from global collection and user profile', movies: user.movies});
+        res.status(200).json({ message: 'Movie removed successfully', movies: user.movies });
+      }
     }else{
-      res.status(200).json({ message: 'Movie removed successfully', movies: user.movies });
+      console.log("Movie does not exist in the global collection");
+      res.status(400).json({message: 'There is no movie in the global collection. Movie cannot exist in user profile', error});
     }
     
   } catch (error) {
@@ -95,14 +125,33 @@ exports.removeUserMovie = async (req,res) => {
 
 // Get saved movies for a user
 exports.getUserMovies = async (req, res) => {
-  try {
-    const user = await User.findById(req.params.id).populate('movies');
-    // console.log(user);
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+  const userId = req.userID;
+    try { 
+      const user = await User.findById(userId).populate('movies');
+      if (!user) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+      res.json({ movies: user.movies });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
     }
-    res.json({ movies: user.movies });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
   }
+
+
+// Increment Movie Counter
+exports.incrementMovieCounter = async (movie) => {
+  // Receive MovieData from AddMovieToGlobalCollection function 
+  movie.UserCounter += 1;
+  await movie.save();
+  return movie;
+};
+
+// Decrement Movie Counter
+exports.decrementMovieCounter = async (movie) => {
+  // Recieve MovieData from RemoveMovieFromGlobalCollection function
+  if (movie.UserCounter > 0) {
+    movie.UserCounter -= 1;
+    await movie.save();
+  }
+  return movie;
 };

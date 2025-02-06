@@ -9,7 +9,7 @@ import {AuthContext} from '../context/AuthContext';
 const MyNavbar = () => {
 
   const { isAuthenticated, logout } = useContext(AuthContext);
-  console.log('Navbar render, isAuthenticated:', isAuthenticated); // Debug log
+  // console.log('Navbar render, isAuthenticated:', isAuthenticated); // Debug log
   
     return (
         <Navbar bg="dark" variant="dark" className='my-navbar'>
