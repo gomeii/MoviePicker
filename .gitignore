@@ -1,3 +1,6 @@
-node_modules
 gcp-service-account-key.json
-.env
+FrontEnd/.env
+FrontEnd/node_modules
+BackEnd/.env
+BackEnd/node_modules
+node_modules/
