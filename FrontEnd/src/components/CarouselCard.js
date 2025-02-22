@@ -51,8 +51,7 @@ const CarouselCard = ({ movie, onMovieSaved, onMovieRemoved, showSaveButton}) =>
         body: JSON.stringify(movieInfo)
       }
     );
-    console.log(await response.json());
-
+    
     if (response.status === 401) {
         console.log("Access token expired, attempting refresh...");
         // Try refreshing the token
@@ -62,12 +61,10 @@ const CarouselCard = ({ movie, onMovieSaved, onMovieRemoved, showSaveButton}) =>
             logout();
             return Promise.reject("Session expired. Please log in again.");
         }
-
         // Retry the original request with the new token
         headers.Authorization = `Bearer ${newToken}`;
         response = await fetch(`${API_URL}${url}`, { ...options, headers, credentials: "include" });
     }
-    console.log("Response inside of ModifyMovieWithAuth():", response.json());
     return response.json();
   };
 

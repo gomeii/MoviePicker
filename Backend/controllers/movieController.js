@@ -1,86 +1,74 @@
 const User = require('../models/user');
 const Movie = require('../models/movie');
-
-// Add a movie to the global 
-exports.addMovieToGlobalCollection = async (movieData) => {
+const { baseLogger } = require('../server.js');
+// Rries to add a movie to the global collection 
+exports.addMovieToGlobalCollection = async (additionalInfo) => {
+  
   try {
-    console.log("In function addMovieToGlobalCollection, Movie data:", movieData);
-    let movie = await Movie.findOne({ imdbID: movieData.imdbID });
-    // Only add movie to the global collection if it doesnt exist
-    if (!movie) {
-      console.log("Movie does not exist and is being created for the global collection")
-      movie = new Movie(movieData);
-      await movie.save();
+    // Function being called with passed in movieData
+    // baseLogger.info("Trying to add movie to global collection:", additionalInfo);
+    // Check if movie already exists in the movies database
+    
+    const movie = await Movie.findOne({ imdbID: await additionalInfo.imdbID });
+    baseLogger.logger.info("Movie Object found:", movie);
+    // If movie doesnt already exists in the global movies database add it 
+    if (movie === null) {
+      // baseLogger.info("Movie does not exist and is being added to global collection:");
+      const newMovie = new Movie(additionalInfo);
+      await newMovie.save();
     }
-    // Increment Global Movie Counter
-    await exports.incrementMovieCounter(movieData.imdbID); // Increment counter
+    // Increase the UserCounter of the movie object 
+    await exports.incrementMovieCounter(movie); 
+    baseLogger.logger.info("UserCounter incremented");
+    // Return Movie object that was incremented
     return movie;
   } catch (error) {
-    console.error('Error adding movie to global collection:', error);
-    throw error;
-  }
+    // Catch any errors encountered
+    baseLogger.error({error}, "Error encountered trying to addMovieToGlobalCollection/incrementingMovieCounter"); 
+    return additionalInfo;
+  } 
 };
 
 // Remove a movie from the global collection (No users can have this movie in their profile)
-exports.removeMovieFromGlobalCollection = async (userID, movieID) => {
+exports.removeMovieFromGlobalCollection = async (movieData) => {
   try {
-    console.log("In function removeMovieFromGlobalCollection, MovieID:", movieID);
-    const movie = await exports.decrementMovieCounter(userID,movieID); // Decrement counter
-    return movie;
+    baseLogger.info({movieData},"Trying to remove movie from global collection:");
+    const movie = await Movie.findOne({imdbID : movieData.imdbID});
+    // If, movie exists just lower call the decrement movie counter function
+    if(movie !== null){
+      const updatedMovie = await exports.decrementMovieCounter(movie);
+      if (updatedMovie.UserCounter < 1){
+        baseLogger.info({updatedMovie}, "Removing movie from global collection");
+        await updatedMovie.remove();
+      }
+      return movie;
+    }
+    // Else, movie does not exists and you cant lower the decrement counter anymore 
+    else{
+      req.loq.error({movieData}, "Does not exist in the global collection");
+      throw error;
+    }
   } catch (error) {
-    console.error('Error removing movie from global collection:', error);
+    baseLogger.error({movieData}, "Error encountered trying to removeMovieFromGlobalCollection/decrementingMovieCounter"); 
     throw error;
   }
 };
 
 
 // Increment Movie Counter
-exports.incrementMovieCounter = async (movieID) => {
-  try {
-    const movie = await Movie.findOne({imdbID: movieID});
-    if (!movie) {
-      throw new Error('Movie not found');
-    }
-    movie.UserCounter += 1;
-    await movie.save();
-    return movie;
-  } catch (error) {
-    console.error('Error incrementing movie counter:', error);
-    throw error;
-  }
+exports.incrementMovieCounter = async (movie) => {
+  // Receive MovieData from AddMovieToGlobalCollection function 
+  movie.UserCounter += 1;
+  await movie.save();
+  return movie;
 };
 
 // Decrement Movie Counter
-exports.decrementMovieCounter = async (userID, movieID) => {
-  try {
-    // console.log("From within decrementMovieCounter, movieID:",movieID);
-    const movie = await Movie.findOne({imdbID: movieID});
-    console.log("From within decrementMovieCounter:", movie);
-    const user = await User.findById(userID);
-    console.log("Inside of decrementMovieCounter, User:", user);
-    if (!movie) {
-      throw new Error('Movie not found');
-    }
-    // Remove the movie from the user Profile
-    user.movies.pull(movie._id);
-    // Save the updated user document
-    await user.save();
-
-    // Ensure counter does not go below 0
-    if (movie.UserCounter > 0) {
-      movie.UserCounter -= 1;
-    }  
+exports.decrementMovieCounter = async (movie) => {
+  // Recieve MovieData from RemoveMovieFromGlobalCollection function
+  if (movie.UserCounter > 0) {
+    movie.UserCounter -= 1;
     await movie.save();
-
-    // If counter drops below 1, remove the movie from the global collection
-    if (movie.UserCounter < 1) {
-      await movie.remove();
-      return null; // Signal that movie has been removed
-    }
-
-    return movie; // Return movie object to remove from user profile
-  } catch (error) {
-    console.error('Error decrementing movie counter:', error);
-    throw error;
   }
+  return movie;
 };

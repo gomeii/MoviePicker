@@ -75,7 +75,7 @@ exports.removeUserMovie = async (req,res) => {
   try {
     const additionalInfo = req.body;
     const userID = req.userID;
-
+    
     if (!userID) {
       return res.status(401).json({ message: 'Unauthorized: Missing user ID' });
     }
@@ -94,7 +94,7 @@ exports.removeUserMovie = async (req,res) => {
     }
 
     // Try to find the movie by the id
-    const movie = await Movie.findOne({ imdbID: await additionalInfo.imdbID });
+    const movie = await Movie.findOne({ imdbID: additionalInfo.imdbID });
     // If the movie exists increment global counter and add it to the users movie array
     if(movie){
       const movieObjID = movie._id.toString();
@@ -106,7 +106,7 @@ exports.removeUserMovie = async (req,res) => {
         return res.status(501).json({ message: 'Movie not in profile' });
       }else{
         // Remove the movie object to the user's movies array
-        user.movies = user.movies.filter(movieID => movieID !== movieData.imdbID);
+        user.movies = user.movies.filter(movieID => movieID.toString() !== movie._id.toString());
         await user.save();
         // Decrement the user counter of the global movie
         await exports.decrementMovieCounter(movie);
@@ -114,8 +114,7 @@ exports.removeUserMovie = async (req,res) => {
         res.status(200).json({ message: 'Movie removed successfully', movies: user.movies });
       }
     }else{
-      console.log("Movie does not exist in the global collection");
-      res.status(400).json({message: 'There is no movie in the global collection. Movie cannot exist in user profile', error});
+      res.status(400).json({message: 'There is no movie in the global collection. Movie cannot exist in user profile'});
     }
     
   } catch (error) {

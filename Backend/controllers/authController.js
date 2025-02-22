@@ -48,14 +48,14 @@ exports.refreshToken = (req,res) => {
 // Log In Logic
 exports.loginUser = async (req, res) => {
   // Recieve Request from Front End
-  req.log.debug("Request recieved for loginUser function:", req.body);
+  req.log.debug("Request received for loginUser function:", req.body);
   // Take the username and password out of the request body
   const { username, password } = req.body;
   req.log.info({username, password}, "Login Attempt for User:");
   
   try {
-    // Try and grab the user object if it exists in the Database
-    const user = await User.findOne({username : username});
+    // Try and grab the user object if it exists in the Database 
+    const user = await User.findOne({username : username}).lean();
 
     // const passwordHash = await Crypto.hash(user.password);
 

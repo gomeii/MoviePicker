@@ -42,11 +42,11 @@ const AuthProvider = ({ children }) => {
         // If response is not ok means that the backend has rejected the login request
         // Set Stateful Data for Error Modal
         setIsAuthenticated(false);
-        setError(userData.message || 'An error occurred during login.');
+        setError(data.message || 'An error occurred during login.');
         // Log to Console that an error has occured with the Login Request
         console.error('Login failed:', data.message);
       }
-      // Error Catch (Try-Catch Block)
+      // Error Catch (Try-Catch Block) 
     } catch (error) {
       // Error Caught somewhere else in the request-response attempt
       setError(error || 'An error occurred during login()');

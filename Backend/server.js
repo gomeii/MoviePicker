@@ -1,10 +1,9 @@
 require('dotenv').config();
 const express = require('express');
-
-const pino = require('pino');
-const pinoHttp = require('pino-http');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const pino = require('pino');
+const pinoHttp = require('pino-http');
 
 // Initialize Routes
 const searchRoutes = require('./routes/searchRoutes');
@@ -15,84 +14,76 @@ const healthRoutes = require('./routes/healthRoutes');
 
 // Create Express App to Handle HTTP Requests
 const app = express();
-const PORT = 5000; 
-const uri = process.env.MONGO_URI;
-const clientOptions = { 
-serverApi: { 
-  version: '1',
-  strict: true, 
-  useUnifiedTopology: true,
-  deprecationErrors: false, 
-  useNewUrlParser: true,
-  useFindAndModify: false,
-  createIndexes: true
- }
-};
+const PORT = process.env.PORT || 5000;
 
-// Create Base Logger
-const baseLogger = pino({
-  level: process.env.LOG_LEVEL || 'info',
-  transport: {
-      target: 'pino-pretty',
-      options: {
-          colorize: true,
-          ignore: 'pid,hostname',
-      },
-  },
-});
-
-// HTTP Logger Middleware
-const customLogger = pinoHttp({
-  logger: baseLogger,
-  // Customize the request logs to include only specific fields
-  customSuccessMessage: (req, res) => `Request: ${req.method} ${req.url} | Status: ${res.statusCode}`,
-  customErrorMessage: (req, res, err) => `Error on ${req.method} ${req.url} | Status: ${res.statusCode} | Error: ${err.message}`,
-  serializers: {
-    req(req) {
-      // Slim down the logged fields for requests
-      return {
-        method: req.method,
-        url: req.url,
-        userAgent: req.headers['user-agent'], // Only log the user-agent if required
-      };
-    },
-    res(res) {
-      // Slim down the logged fields for responses
-      return {
-        statusCode: res.statusCode,
-      };
-    }
-  }
-});
 
 // Middleware
 app.use(cors());
 app.use(express.json());
+
+// MongoDB Connection String
+const uri = process.env.MONGO_URI;
+if (!uri) {
+  console.error('MONGO_URI is not defined in .env file');
+  process.exit(1);
+}
+console.log(`Connecting to MongoDB: ${uri}`);
+
+// Logger
+const baseLogger = pino({
+  level: process.env.LOG_LEVEL || 'info',
+  transport: {
+    target: 'pino-pretty',
+    options: { colorize: true, ignore: 'pid,hostname' },
+  },
+});
+
+// Attach Logger Middleware
+const customLogger = pinoHttp({ logger: baseLogger });
 app.use(customLogger);
+
+
 // Routes
 app.use('/api/search', searchRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/movies', movieRoutes);
-// app.use('/api/health', healthRoutes);
+app.use('/api/health', healthRoutes); // Health check route
 
-// MongoDB Connection Function Definition
-async function ConnectDatabase() {
-  try {
-    await mongoose.connect(uri, clientOptions);
-    customLogger.logger.info('MongoDB connection established');
-    if (require.main === module) {
-      app.listen(PORT, () => {
-        customLogger.logger.info(`Server running on port ${PORT}`);
-      });
+// MongoDB Connection Function
+async function connectDatabase(retries = 5, delay = 5000) {
+  for (let attempt = 0; attempt < retries; attempt++) {
+    try {
+      await mongoose.connect(uri); // Corrected `uri` usage
+      baseLogger.info('MongoDB connection established');
+      return;
+    } catch (error) {
+      baseLogger.error({ error }, `MongoDB connection failed (Attempt ${attempt + 1})`);
+      if (attempt < retries - 1) {
+        await new Promise((res) => setTimeout(res, delay));
+      } else {
+        process.exit(1);
+      }
     }
-  } catch (error) {
-    customLogger.logger.error('MongoDB connection error:', error);
-    process.exit(1);
   }
 }
 
-// Run MongoDb Connection
-ConnectDatabase();
+// Start Server After DB Connection
+async function startServer() {
+  await connectDatabase();
+  app.listen(PORT, () => baseLogger.info(`Server running on port ${PORT}`));
+}
 
-module.exports = { app, baseLogger };  // Export the app without starting the server
+// Graceful Shutdown Handling
+process.on('SIGINT', async () => {
+  await mongoose.connection.close();
+  baseLogger.info('MongoDB connection closed');
+  process.exit(0);
+});
+
+// Run Server
+if (require.main === module) {
+  startServer();
+}
+
+module.exports = { app, baseLogger };

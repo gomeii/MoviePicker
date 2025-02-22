@@ -16,24 +16,23 @@ exports.searchReq = async (req,res) => {
         if (response.ok) {
             // Create Movies List object and return to the frontend
             const queryResponse = await response.json();
-            const {Search,totalResults,Response} = queryResponse;
+            const {Search,totalResults,Response, Error} = queryResponse;
             
             // If A list of movies is returned (Response == True)
-            if(Response){
+            if(!Error){
                 return res.status(200).json({movies: Search, totalResults: totalResults, validResponse: Response});
             }
             // If A list of movies is not returned (Response == False)
             else{
-                return res.status(500).json({validResponse: Response});
+                return res.status(500).json({error: Error, validResponse: Response});
             }
         // Response is not ok (Bad (!= 200-299) Status Code)
         } else {
-            console.log("No valid response from Search API");
-            res.status(500).json({ message: 'API error', error });
+            res.status(500).json({ message: 'API error', error: "Bad API Return Status CODE" });
         }
     } catch (error) {
         console.error('Error retrieving data from OMDb API:', error);
-        res.status(500).json({ message: 'Server error', error })
+        res.status(500).json({ message: 'Server error', errorMsg: error })
     }
     
   };
@@ -64,10 +63,10 @@ exports.searchAdditional = async (req,res) => {
             }
         // Response is not ok (Bad (!= 200-299) Status Code)
         } else {
-            res.status(500).json({ message: 'API error', error });
+            res.status(500).json({ message: 'API error', error: "Bad API Return Status CODE" });
         }
     } catch (error) {
         console.error('Error retrieving data from OMDb API:', error);
-        res.status(500).json({ message: 'Server error', error })
+        res.status(500).json({ message: 'Server error', errorMsg: error })
     }
 } 
