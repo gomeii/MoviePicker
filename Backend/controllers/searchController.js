@@ -1,5 +1,3 @@
-// const baseLogger = require('../server');
-
 exports.searchReq = async (req,res) => {
   
     // Set the search value variable passed in from the api request
@@ -28,11 +26,11 @@ exports.searchReq = async (req,res) => {
             }
         // Response is not ok (Bad (!= 200-299) Status Code)
         } else {
-            res.status(500).json({ message: 'API error', error: "Bad API Return Status CODE" });
+            return res.status(500).json({ message: 'API error', error: "Bad API Return Status code" });
         }
     } catch (error) {
-        console.error('Error retrieving data from OMDb API:', error);
-        res.status(500).json({ message: 'Server error', errorMsg: error })
+        req.log.error('Error retrieving data from OMDb API:', error);
+        return res.status(500).json({ message: 'Server error', errorMsg: error })
     }
     
   };
@@ -44,9 +42,9 @@ exports.searchAdditional = async (req,res) => {
     
     try { 
         const url = `http://www.omdbapi.com/?apikey=${apiKey}&i=${movie.imdbID}`;
-        
+         
         // baseLogger.info("API ENDPOINT FOR SEARCHING IN DEPTH INFO:", url);
-        
+         
         const response = await fetch(url);
         
         // Response is ok (200-299 Status Code)
@@ -63,10 +61,10 @@ exports.searchAdditional = async (req,res) => {
             }
         // Response is not ok (Bad (!= 200-299) Status Code)
         } else {
-            res.status(500).json({ message: 'API error', error: "Bad API Return Status CODE" });
+            return res.status(500).json({ message: 'API error', error: "Bad API Return Status CODE" });
         }
-    } catch (error) {
-        console.error('Error retrieving data from OMDb API:', error);
-        res.status(500).json({ message: 'Server error', errorMsg: error })
+    } catch (error) { 
+        req.log.error('Error retrieving data from OMDb API:', error);
+        return res.status(500).json({ message: 'Server error', errorMsg: error })
     }
 } 

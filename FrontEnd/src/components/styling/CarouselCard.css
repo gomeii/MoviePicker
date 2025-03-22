@@ -34,8 +34,7 @@
 
 .card-text {
   flex: 1;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  overflow: auto;
   max-height: 5.5rem;
   display: -webkit-box;
   font-size: calc(.8rem + 0.1vw);

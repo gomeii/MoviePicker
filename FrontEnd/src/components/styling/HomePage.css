@@ -2,8 +2,8 @@
     display: flex;
     flex-direction: column;
     align-items: center; 
-    padding-left:2%;
-    padding-right:2%;
+    padding-left: 5%;
+    padding-right: 5%;
     padding-top:1rem;
     padding-bottom:2rem;
   }

@@ -13,7 +13,6 @@ const HomePage = () => {
   const [movies, setMovies] = useState([]);
   const [savedMovies, setSavedMovies] = useState([]);
   const [searchValue, setSearchValue] = useState('');
-  
   // Received from the dockerfile environment variables
   const API_URL = process.env.REACT_APP_API_URL;
 
@@ -41,7 +40,7 @@ const HomePage = () => {
         sessionStorage.setItem("accessToken", data.accessToken);
         return data.accessToken;
     } catch (error) {
-        console.error("Session expired. Please log in again.");
+        console.error("Token refresh failed, Please log in again.");
         return null;
     }
   };
@@ -49,7 +48,6 @@ const HomePage = () => {
   //API Request wrapper with automatic token refresh
   const fetchWithAuth = async (url, options = {}) => {
     let token = sessionStorage.getItem("accessToken");
-
 
     let response = await fetch(`${API_URL}${url}`, { 
       headers: {
@@ -118,9 +116,7 @@ const HomePage = () => {
 
   // Logic for fetching the movies in a persons profile from the MongoDB database
   const fetchSavedMovies = async () => {
-    
-    // If the user isAuthenticated
-    if(isAuthenticated){
+
       // Try fetching data for logged in user
       try{
         const data = await fetchWithAuth("/api/users/movies");
@@ -128,7 +124,6 @@ const HomePage = () => {
       } catch (error) {
         console.error('Error caught in fetching saved movies (async Promise Rejected)', error);
       }
-    }
   };
   
 
@@ -142,7 +137,7 @@ const HomePage = () => {
             <MovieList movies={movies} onMovieSaved={fetchSavedMovies} showSaveButton={true}/>
             <Row className='header'><h2 className='text-left'>Saved Movies</h2></Row>
             {isAuthenticated ? (
-                <MovieList movies={savedMovies} onMovieRemoved={fetchSavedMovies} showSaveButton={false}/>
+                <MovieList className="savedMovies" movies={savedMovies} onMovieRemoved={fetchSavedMovies} showSaveButton={false} shouldAutoScroll={false} />
             ) : (
               <Alert variant="warning" className="mt-3">
                 Please <Alert.Link href="/login">login/signup</Alert.Link> to save movies function.
@@ -153,4 +148,4 @@ const HomePage = () => {
   );
 };
 
-export default HomePage;
+export default HomePage; 

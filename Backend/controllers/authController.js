@@ -1,5 +1,4 @@
 const User = require('../models/user');
-
 const JWT = require("jsonwebtoken");
 const Crypto = require("argon2");
 
@@ -10,15 +9,18 @@ exports.authenticateJWT = (req, res, next) => {
   const token = req.headers.authorization?.split(" ")[1];
 
   if (!token) {
-      req.log.info("No token provided when trying to authenticate JWT");
+      req.log.warn("No token provided when trying to authenticate JWT");
       return res.status(403).json({ message: "No token provided" });
   }
 
   JWT.verify(token, SECRET_KEY, (err, decoded) => {
-      if (err) return res.status(401).json({ message: "Unauthorized" });
-      req.log.info(decoded, "Decoded token found")
-      req.userID = decoded.id;
-      next();
+      if (err){
+        return res.status(401).json({ message: "Unauthorized" });
+      }else{
+        req.log.debug(decoded, "Access Token Received")
+        req.userID = decoded.id;
+        next();
+      }
   });
 };
 
@@ -28,7 +30,7 @@ exports.refreshToken = (req,res) => {
 
   // If no refresh token, return error
   if (!refreshToken){
-    req.loq.info("No refresh token provided for refreshToken() function");
+    req.loq.warn("No refresh token provided for refresh");
     return res.status(401).json({message: "No refresh token"})
   }
   // If refresh token, verify that it is valid: if so generate newAccesToken else return error message
@@ -39,6 +41,7 @@ exports.refreshToken = (req,res) => {
       } 
       else{
         const newAccessToken = JWT.sign({id: decoded.id}, SECRET_KEY, { expiresIn: "15m" });
+        req.log.debug(newAccessToken, "New Access Token Generrated");
         return res.json({accessToken: newAccessToken});
       }
     })
@@ -47,12 +50,10 @@ exports.refreshToken = (req,res) => {
 
 // Log In Logic
 exports.loginUser = async (req, res) => {
-  // Recieve Request from Front End
-  req.log.debug("Request received for loginUser function:", req.body);
+
   // Take the username and password out of the request body
   const { username, password } = req.body;
-  req.log.info({username, password}, "Login Attempt for User:");
-  
+  req.log.debug({username, password}, "Login Attempt for User:");
   try {
     // Try and grab the user object if it exists in the Database 
     const user = await User.findOne({username : username}).lean();
@@ -65,14 +66,19 @@ exports.loginUser = async (req, res) => {
     }
     else{
       // Return 200 Status Response (OK) and user object as a json
-      req.log.info(SECRET_KEY, "Successful Login for User, Generating access and refresh token");
       // Generate access & refresh tokens
       const accessToken = JWT.sign({ id: user._id }, SECRET_KEY, { expiresIn: "15m" });
       const refreshToken = JWT.sign({ id: user._id }, SECRET_KEY, { expiresIn: "7d" });
-       
-      res.cookie("refeshToken", refreshToken,{ 
-        httpOnly: true
-      })
+      req.log.info({accessToken: accessToken, refreshToken: refreshToken}, "Successful Login for User, Generating access and refresh token");
+
+      // Set the refresh token in an HTTP-only, secure cookie
+      res.cookie("refreshToken", refreshToken, {
+        httpOnly: true,       // Prevents JavaScript access (XSS protection)
+        secure: process.env.NODE_ENV === "production",  // Only send over HTTPS in production
+        sameSite: "strict",   // Prevents CSRF attacks
+        maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days in milliseconds
+      });
+
       return res.status(200).json({ accessToken });
     }
   } catch (error) {
@@ -85,10 +91,9 @@ exports.loginUser = async (req, res) => {
 // Create a new user
 exports.createUser = async (req, res) => {
   // Receive request from Front End
-  req.log.debug("Request received for createUser function:", req.body);
   // Take the username and password out of the request body
   const { username, password, firstName, lastName} = req.body;
-  req.log.info({ username, password, firstName, lastName}, "Create User Attempt for User:");
+  req.log.info({ userName:username, pass: password, firstName:firstName, lastName:lastName}, "Create User Attempt for User:");
   try{
     // Try to look for a user in the database that has a matching username to request username
     const user = await User.findOne({username : username});
@@ -108,10 +113,16 @@ exports.createUser = async (req, res) => {
       // Generate access & refresh tokens
       const accessToken = JWT.sign({ id: newUser._id }, SECRET_KEY, { expiresIn: "15m" });
       const refreshToken = JWT.sign({ id: newUser._id }, SECRET_KEY, { expiresIn: "7d" });
+      req.log.info({accessToken: accessToken, refreshToken: refreshToken, newUserID: newUser._id}, "Successful User Creation, Generating access and refresh token");
       
-      res.cookie("refeshToken", refreshToken,{ 
-        httpOnly: true
-      })
+      // Set the refresh token in an HTTP-only, secure cookie
+      res.cookie("refreshToken", refreshToken, {
+        httpOnly: true,       // Prevents JavaScript access (XSS protection)
+        secure: process.env.NODE_ENV === "production",  // Only send over HTTPS in production
+        sameSite: "strict",   // Prevents CSRF attacks
+        maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days in milliseconds
+      });
+
       return res.status(200).json({ accessToken });
     }
   }

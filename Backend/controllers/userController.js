@@ -7,6 +7,7 @@ const User = require('../models/user');
 // Add Movie to Users Profile
 exports.addUserMovie = async (req,res) => {
   try {
+    
     const additionalInfo = req.body;
     const userID = req.userID;
 
@@ -18,21 +19,19 @@ exports.addUserMovie = async (req,res) => {
     if (!validMovie) {
       return res.status(400).json({ message: 'Invalid movie data' });
     }
-    
+     
     // Find the user by ID
     const user = await User.findById(userID);
-    req.log.info({ user }, "Trying to add movie to this user's profile");
-    
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
     
     // Try to find the movie by the id
     const movie = await Movie.findOne({ imdbID: await additionalInfo.imdbID });
+    req.log.debug({movie}, "Movie found in movie collections")
     // If the movie exists increment global counter and add it to the users movie array
     if(movie){
       const movieObjID = movie._id.toString();
-      req.log.info(movieObjID);
       // Check if the movie already exists in the user's profile
       const movieExists = user.movies.some(m => m.toString() === movie._id.toString());
       if (movieExists) {
@@ -54,7 +53,6 @@ exports.addUserMovie = async (req,res) => {
       await newMovie.save();
 
       const newMovieObjID = newMovie._id.toString()
-      req.log.info(newMovieObjID);
 
       user.movies.push(newMovieObjID);
       await user.save();
@@ -83,11 +81,10 @@ exports.removeUserMovie = async (req,res) => {
     const validMovie = additionalInfo && additionalInfo.imdbID;
     if (!validMovie) {
       return res.status(400).json({ message: 'Invalid movie data' });
-    }
+    } 
     
     // Find the user by ID
     const user = await User.findById(userID);
-    req.log.info({ user }, "Trying to remove movie from this user's profile");
     
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
@@ -98,11 +95,10 @@ exports.removeUserMovie = async (req,res) => {
     // If the movie exists increment global counter and add it to the users movie array
     if(movie){
       const movieObjID = movie._id.toString();
-      req.log.info(movieObjID);
       // Check if the movie already exists in the user's profile
       const movieExists = user.movies.some(m => m.toString() === movie._id.toString());
       if (!movieExists) {
-        req.log.info("Movie does not exist in the users profile");
+        req.log.debug("Movie does not exist in the users profile");
         return res.status(501).json({ message: 'Movie not in profile' });
       }else{
         // Remove the movie object to the user's movies array

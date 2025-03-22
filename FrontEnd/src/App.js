@@ -1,15 +1,13 @@
 // import logo from './logo.svg';
-import React, {useState, useEffect} from 'react';
+import React from 'react';
 import { BrowserRouter as Router, Route, Routes} from 'react-router-dom';
-import { AuthProvider, AuthContext } from './context/AuthContext';
+import { AuthProvider} from './context/AuthContext';
 import LoginPage from './components/LoginPage';
 import HomePage from './components/HomePage';
 import MyNavbar from './components/MyNavbar';
 import './App.css'
-// import PrivateRoute from './components/PrivateRoute';
 
 const App = () => {
-
   return (
     <AuthProvider>
       <Router>

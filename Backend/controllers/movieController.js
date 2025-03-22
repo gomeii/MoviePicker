@@ -11,11 +11,11 @@ exports.addMovieToGlobalCollection = async (additionalInfo) => {
     
     const movie = await Movie.findOne({ imdbID: await additionalInfo.imdbID });
     baseLogger.logger.info("Movie Object found:", movie);
-    // If movie doesnt already exists in the global movies database add it 
+    // If movie doesnt already exists in the global movies database add it  
     if (movie === null) {
       // baseLogger.info("Movie does not exist and is being added to global collection:");
       const newMovie = new Movie(additionalInfo);
-      await newMovie.save();
+      await newMovie.save(); 
     }
     // Increase the UserCounter of the movie object 
     await exports.incrementMovieCounter(movie); 

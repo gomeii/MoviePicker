@@ -2,13 +2,13 @@ import React, { useEffect, useState, useRef} from 'react';
 import CarouselCard from './CarouselCard';
 import './styling/MovieList.css';
 
-const MovieList = ({ movies, onMovieSaved, onMovieRemoved, showSaveButton }) => {
+const MovieList = ({ movies, onMovieSaved, onMovieRemoved, showSaveButton, shouldAutoScroll=true}) => {
   const listRef = useRef(null);
   const [direction, setDirection] = useState(1); // 1 for right, -1 for left
   const [isPaused, setIsPaused] = useState(false);
 
   useEffect(() => {
-    if (!listRef.current) return;
+    if (!shouldAutoScroll || !listRef.current) return; // Disable scrolling if shouldAutoScroll is false
     
     let scrollInterval;
 

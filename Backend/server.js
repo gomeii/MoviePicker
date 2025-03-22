@@ -1,3 +1,4 @@
+// Import all module dependencies
 require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
@@ -18,7 +19,7 @@ const PORT = process.env.PORT || 5000;
 
 
 // Middleware
-app.use(cors());
+app.use(cors()); 
 app.use(express.json());
 
 // MongoDB Connection String
@@ -27,19 +28,19 @@ if (!uri) {
   console.error('MONGO_URI is not defined in .env file');
   process.exit(1);
 }
-console.log(`Connecting to MongoDB: ${uri}`);
 
 // Logger
 const baseLogger = pino({
   level: process.env.LOG_LEVEL || 'info',
   transport: {
-    target: 'pino-pretty',
+    target: 'pino-pretty', 
     options: { colorize: true, ignore: 'pid,hostname' },
   },
 });
-
-// Attach Logger Middleware
-const customLogger = pinoHttp({ logger: baseLogger });
+// Attach Logger Middleware for HTTP Requests/Responses
+// (Optional turn autoLogging to true to see all the requests being handled)
+// Personally prefer to set minimum logging level through environment file
+const customLogger = pinoHttp({ logger: baseLogger, autoLogging: false});
 app.use(customLogger);
 
 

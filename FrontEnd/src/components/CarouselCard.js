@@ -4,7 +4,6 @@ import { FaHeart ,FaRegHeart, FaTimes} from 'react-icons/fa';
 import './styling/CarouselCard.css'
 import { AuthContext } from '../context/AuthContext';
 
-// Pull in the base URL for the backend API
 const API_URL = process.env.REACT_APP_API_URL;
 
 // movie prop = movie object containing the info of each movie
@@ -14,9 +13,9 @@ const API_URL = process.env.REACT_APP_API_URL;
 const CarouselCard = ({ movie, onMovieSaved, onMovieRemoved, showSaveButton}) => {
   
 
-
+ 
   // Stateful Data [Movie Data (In Depth), Authentication Status (LoggedIn/NotLoggedIn)]
-  const [additionalInfo,setAdditionalInfo] = useState({})
+  const [additionalInfo,setAdditionalInfo] = useState({}) 
   const { isAuthenticated } = useContext(AuthContext);
 
   // Function to refresh access token
@@ -39,11 +38,11 @@ const CarouselCard = ({ movie, onMovieSaved, onMovieRemoved, showSaveButton}) =>
   };
 
   //API Request wrapper with automatic token refresh
-  const ModifyMovieWithAuth = async (url, movieInfo, options = {}) => {
+  const ModifyMovieWithAuth = async (url, movieInfo, httpMethod, options = {}) => {
     // Pull out token from sessionStorage
     let token = sessionStorage.getItem("accessToken");
     let response = await fetch(`${API_URL}${url}`,{ 
-        method: 'POST',
+        method: httpMethod,
         headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`
@@ -71,7 +70,7 @@ const CarouselCard = ({ movie, onMovieSaved, onMovieRemoved, showSaveButton}) =>
   //  Save Movie Button Logic
   const handleSaveMovie = async (additionalInfo) => {
     try{
-      const data = await ModifyMovieWithAuth("/api/users/addMovie", additionalInfo, {});
+      const data = await ModifyMovieWithAuth("/api/users/addMovie", additionalInfo, "POST");
       onMovieSaved();
     } catch (error) {
       console.error('Error on saving movie:', error);
@@ -80,16 +79,13 @@ const CarouselCard = ({ movie, onMovieSaved, onMovieRemoved, showSaveButton}) =>
 
   // Remove Movie Button Logic
   const handleRemoveMovie = async (additionalInfo) => {
-    // Only Remove if the User is Authenticated (Potentially pointless since the button should not render unless the user is signed in/authenticated)
-    if(isAuthenticated){
       // Try fetching data for logged in user
       try{
-        const data = await ModifyMovieWithAuth("/api/users/removeMovie", additionalInfo, {});
+        const data = await ModifyMovieWithAuth("/api/users/removeMovie", additionalInfo, "DELETE");
         onMovieRemoved();
       } catch (error) {
         console.error('Error removing movie:', error);
       }
-    }
     
   };
 
@@ -124,14 +120,14 @@ const CarouselCard = ({ movie, onMovieSaved, onMovieRemoved, showSaveButton}) =>
       <Card.Body className="card-body">
         <Card.Title className="card-title">{movie.Title}</Card.Title>
         <Card.Subtitle>{movie.Year}</Card.Subtitle>
-        <Card.Text className="card-text">
-          {additionalInfo.Plot || 'No plot available'}
-        </Card.Text>
+          <Card.Text className="card-text">
+            {additionalInfo.Plot || 'No plot available'}
+          </Card.Text>
         <div className="button-container">
           <Button
             href={`https://www.imdb.com/title/${movie.imdbID}`}
             className="btn"
-            variant="secondary"
+            variant="secondary" 
           >
             View Details
           </Button>

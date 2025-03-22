@@ -101,6 +101,7 @@ const LoginPage = () => {
                   <Form.Control
                     type="password"
                     placeholder="Enter password"
+                    autoComplete="on"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
