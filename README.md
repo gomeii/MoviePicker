@@ -11,7 +11,6 @@ This is a personal project I created to try and get familiar with web developmen
 This directory contains a Client (Frontend) structure made mostly with React and CSS, a Server (Backend) strucutre made mostly of the MongoDB manipulation from the api routes using Express and Mongoose as the mongo driver. This directory most likely has some unecessary node packages that I gathered over the time of working on this. 
 
     |- Frontend
-    | |- node modules (npm dependencies)
     | |- public (landing of create-react-app)
     | |- src (the bulk of the client components )
     | |- .env
@@ -23,13 +22,13 @@ This directory contains a Client (Frontend) structure made mostly with React and
     |- Backend
     | |- controllers (express backend logic)
     | |- models (mongodb collection schema)
-    | |- node modules (npm dependecies)
     | |- routes (api routing)
     | |- .env
     | |- Dockerfile (container file to run locally)
     | |- package-lock.json (npm dependecies)
     | |- package.json (npm dependecies)
-    |- node modules (probably unecessary)
+    | |-tests
+    |  |-server.test.js (backend api tests)
     |- docker-compose.yml (orchestrate containers)
     |- package-lock.json (npm dependecies)
     |- package.json (npm dependecies)
@@ -61,33 +60,31 @@ We will reference to this key as: [API_KEY]
 To utilize this repo you will need to create an account with MongoDB and create a free cluster for your database. Instructions on how to do this can be found here: https://www.mongodb.com/docs/atlas/getting-started/
 
 Once you have created your MongoDb database you will need to get a connection string for an account that has the privelege to readAndWriteToAnyDatabase.
-We will reference to this connection string as: [MONGO_URI]. It will be in the form of: "mongodb+srv://<username>:<password>...........", where the username and password are the credentials for the account with readAndWriteToAnyDatabase access.
+We will reference to this connection string as: [MONGO_URI]. It will be in the form of: "mongodb+srv://<username>:<password>:<cluster>/<database>..........", where the username and password are the credentials for the account with readAndWriteToAnyDatabase access.
 
 #### FrontEnd Environment File
 
 1. Navigate to the Frontend Folder
 2. Create an .env File
-3. Create the environment variable REACT_APP_OMDB_API_KEY and set it to your [API_KEY]
-4. Create the environment variable BACKEND_URL and set it to "http://localhost:5000"
 4. .env file should be:
 
-    `REACT_APP_OMDB_API_KEY=[API_KEY]`
-
-    `BACKEND_URL=http://localhost:5000`
+    `REACT_APP_API_URL=http://localhost:5000`
 
 #### Backend Environment File
 
 1. Navigate to the Backend Folder
 2. Create an .env File
-3. Create the environment variable PORT and set it to 5000
-4. Create the environment variable MONGO_URI and set it to the connection string [MONGO_URI] you got after creating your database 
-4. .env file should be:
+3. .env file should be:
 
     `PORT=5000`
 
     `MONGO_URI=[MONGO_URI]`
 
     `REACT_APP_OMDB_API_KEY=[API_KEY]`
+    
+    `LOG_LEVEL=[LOG_LEVEL]`
+
+    `JWT_SECRET=[JWT_SECRET]`
 
 
 
@@ -103,18 +100,9 @@ We will reference to this connection string as: [MONGO_URI]. It will be in the f
 
 3. Navigate to the main folder `MoviePicker`
 
-4. Create a .env file in the same directory as the docker-compose.yml file. The envrionment file should include the following variables:
+4. Run the command `docker compose build --no-cache`. This will create the containers for each of the structures of the application utilizing the docker-compose.yml file
 
-    `REACT_APP_OMDB_API_KEY=[API_KEY]`
-
-    `MONGO_URI=[MONGO_URI]`
-
-    `REACT_APP_API_URL=http://localhost:5000`
-
-4. Run the command `docker-compose build --no-cache`. This will create the containers for each of the structures of the application utilizing the docker-compose.yml file
-
-5. Once the containers are finished building. Run the command `docker-compose up`
-This will start the containers.
+5. Once the containers are finished building. Run the command `docker compose up`. This will start the containers.
 
 6. From here you should be able to view the application from the browser at [http://localhost:3000]
 
